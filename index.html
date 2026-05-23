@@ -579,26 +579,33 @@ window.doStuLogin=async function(){
   if(!/^09\d{8}$/.test(phone)){err.className='msg-err';err.textContent='手機格式錯誤，請輸入 09xxxxxxxx';return;}
   btn.disabled=true;btn.textContent='登入中…';err.textContent='';
   try{
-    // 從 Firestore 查詢對應的 Email
-    const {getDocs,query,collection,where}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const q=query(collection(db,"students"),where("phone","==",phone));
+    // Step 1：查詢手機對應的 Email
+    const {getDocs,query:fsQuery,collection:fsCol,where}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const q=fsQuery(fsCol(db,"students"),where("phone","==",phone));
     const snap=await getDocs(q);
-    if(snap.empty){err.className='msg-err';err.textContent='找不到此手機號碼的帳號，請先註冊';btn.disabled=false;btn.textContent='🧘 學生登入';return;}
+    if(snap.empty){
+      err.className='msg-err';err.textContent='找不到此手機號碼的帳號，請先註冊';
+      btn.disabled=false;btn.textContent='🧘 學生登入';return;
+    }
     const stuData=snap.docs[0].data();
     const stuId=snap.docs[0].id;
-    // 用 Email + 密碼登入 Firebase Auth
-    const {signInWithEmailAndPassword}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
-    await signInWithEmailAndPassword(auth,stuData.email,pw);
-    // 登入後標記為學生（非管理員）
-    isAdmin=false;
+    // Step 2：先設好 currentStudentId，讓 onAuthStateChanged 知道這是學生登入
     currentStudentId=stuId;
-    currentStudentName=stuData.name;
-    document.getElementById('stu-name-label').textContent='👋 '+stuData.name;
+    currentStudentName=stuData.name||'';
+    currentRole='student';
+    // Step 3：Firebase Auth 登入
+    await signInWithEmailAndPassword(auth,stuData.email,pw);
+    // Step 4：更新 UI 並前往學生頁
+    isAdmin=false;
+    document.getElementById('stu-name-label').textContent='👋 '+(stuData.name||'');
     document.getElementById('stu-student-login-btn').style.display='none';
     document.getElementById('stu-student-logout-btn').style.display='inline-block';
     document.getElementById('stu-login-btn').style.display='inline-block';
+    startPublicListeners();
     goStu();
   }catch(e){
+    // 登入失敗：清除預設的 currentStudentId
+    currentStudentId='';currentStudentName='';currentRole='';
     const msgs={'auth/wrong-password':'密碼錯誤','auth/invalid-credential':'手機號碼或密碼錯誤','auth/too-many-requests':'嘗試次數過多，請稍後再試'};
     err.className='msg-err';err.textContent=msgs[e.code]||('登入失敗：'+e.message);
     btn.disabled=false;btn.textContent='🧘 學生登入';
@@ -607,8 +614,8 @@ window.doStuLogin=async function(){
 
 // ── 學生登出 ──
 window.doStuLogout=async function(){
+  currentStudentId='';currentStudentName='';currentRole='';isAdmin=false;
   await signOut(auth);
-  isAdmin=false;currentStudentId='';currentStudentName='';
   document.getElementById('stu-name-label').textContent='';
   document.getElementById('stu-student-login-btn').style.display='inline-block';
   document.getElementById('stu-student-logout-btn').style.display='none';
@@ -636,8 +643,15 @@ window.doRegister=async function(){
       allowedCourses:[],  // 老師設定可上的課程類型（空=全部）
       createdAt:nowTs()
     });
+    // 設好 currentStudentId 讓 onAuthStateChanged 認得這是學生
+    currentStudentId=cred.user.uid;
+    currentStudentName=name;
+    currentRole='student';
+    document.getElementById('stu-name-label').textContent='👋 '+name;
+    document.getElementById('stu-student-login-btn').style.display='none';
+    document.getElementById('stu-student-logout-btn').style.display='inline-block';
     msg.className='msg-ok';msg.textContent='✅ 註冊成功！正在前往預約頁面…';
-    setTimeout(()=>{goStu();},1200);
+    setTimeout(()=>{startPublicListeners();goStu();},800);
   }catch(e){
     const msgs={'auth/email-already-in-use':'此 Email 已被註冊','auth/weak-password':'密碼強度不足，請使用 6 碼以上','auth/invalid-email':'Email 格式錯誤'};
     msg.className='msg-err';msg.textContent=msgs[e.code]||('註冊失敗：'+e.message);
@@ -658,75 +672,103 @@ function unsubAll(){
 }
 
 // ── Auth 狀態 ──
-onAuthStateChanged(auth,async user=>{
-  if(user){
-    // 1. 先檢查是否為學生
-    try{
-      const stuSnap=await getDoc(doc(db,"students",user.uid));
-      if(stuSnap.exists()){
-        const d=stuSnap.data();
-        currentRole='student';isAdmin=false;
-        currentStudentId=user.uid;currentStudentName=d.name||'';
-        document.getElementById('stu-name-label').textContent=d.name?'👋 '+d.name:'';
-        document.getElementById('stu-student-login-btn').style.display='none';
-        document.getElementById('stu-student-logout-btn').style.display='inline-block';
-        startPublicListeners();showPage('student');sTab('month');
-        return;
-      }
-    }catch(e){}
-    // 2. 再檢查是否為教師帳號
-    try{
-      const tchSnap=await getDoc(doc(db,"teacherAccounts",user.uid));
-      if(tchSnap.exists()){
-        const d=tchSnap.data();
-        // 主管理者判斷：email 符合 SUPER_ADMIN_EMAIL
-        const isSuperAdmin=(user.email===SUPER_ADMIN_EMAIL);
-        if(isSuperAdmin){
-          currentRole='superadmin';isAdmin=true;
-        } else if(d.status==='approved'){
-          currentRole='teacher';isAdmin=true;
-        } else if(d.status==='pending'){
-          // 待審核：顯示提示後登出
-          await signOut(auth);
-          document.getElementById('lerr').textContent='⏳ 帳號尚待主管理者審核，請稍後再嘗試登入。';
-          document.getElementById('login-btn').disabled=false;
-          document.getElementById('login-btn').textContent='🔐 登入後台';
-          return;
-        } else {
-          await signOut(auth);
-          document.getElementById('lerr').textContent='❌ 帳號已被拒絕，請聯絡主管理者。';
-          document.getElementById('login-btn').disabled=false;
-          document.getElementById('login-btn').textContent='🔐 登入後台';
-          return;
-        }
-        setupAdminUI(user,d,currentRole);
-        return;
-      }
-    }catch(e){}
-    // 3. 既不是學生也不是教師 → 視為主管理者（第一次使用，尚未建 teacherAccounts 記錄）
-    if(user.email===SUPER_ADMIN_EMAIL){
-      currentRole='superadmin';isAdmin=true;
-      // 自動建立主管理者記錄（若不存在）
-      try{
-        await setDoc(doc(db,"teacherAccounts",user.uid),{
-          name:'主管理者',email:user.email,phone:'',status:'approved',role:'superadmin',createdAt:nowTs()
-        },{merge:true});
-      }catch(e){}
-      setupAdminUI(user,{name:'主管理者'},currentRole);
-      return;
-    }
-    // 其他不明帳號 → 登出
-    await signOut(auth);
-    document.getElementById('lerr').textContent='此帳號無法登入後台，請聯絡主管理者。';
-    document.getElementById('login-btn').disabled=false;
-    document.getElementById('login-btn').textContent='🔐 登入後台';
-  } else {
-    currentRole='';isAdmin=false;currentStudentId='';currentStudentName='';
+// 登入流程：
+//   doLogin()      → Firebase Auth → onAuthStateChanged → 讀 teacherAccounts
+//   doStuLogin()   → 先查 Firestore phone → 取得 email → Firebase Auth
+//                    → onAuthStateChanged 但 currentStudentId 已設好 → skip
+//   doRegister()   → 建立帳號後立刻 goStu()，不走 onAuthStateChanged 後台流程
+onAuthStateChanged(auth, async user=>{
+  if(!user){
+    // 已登出
+    currentRole=''; isAdmin=false; currentStudentId=''; currentStudentName='';
     document.getElementById('stu-back-to-admin-btn').style.display='none';
     document.getElementById('stu-student-logout-btn').style.display='none';
     document.getElementById('stu-student-login-btn').style.display='inline-block';
     document.getElementById('stu-login-btn').style.display='inline-block';
+    return;
   }
+
+  // ── 學生登入（由 doStuLogin 設好 currentStudentId）──
+  if(currentStudentId){
+    // 已由 doStuLogin 處理完畢，直接結束
+    return;
+  }
+
+  // ── 判斷是否為學生（先用 uid 查 students）──
+  let isStu=false;
+  try{
+    const stuSnap=await getDoc(doc(db,"students",user.uid));
+    if(stuSnap.exists()){ isStu=true; }
+  }catch(e){ /* 規則不允許時忽略，繼續往下判斷 */ }
+
+  if(isStu){
+    // 學生帳號被 doLogin（教師入口）誤登入 → 轉去學生頁
+    try{
+      const d=(await getDoc(doc(db,"students",user.uid))).data()||{};
+      currentRole='student'; isAdmin=false;
+      currentStudentId=user.uid; currentStudentName=d.name||'';
+      document.getElementById('stu-name-label').textContent=d.name?'👋 '+d.name:'';
+      document.getElementById('stu-student-login-btn').style.display='none';
+      document.getElementById('stu-student-logout-btn').style.display='inline-block';
+    }catch(e){}
+    startPublicListeners(); showPage('student'); sTab('month');
+    return;
+  }
+
+  // ── 主管理者（email 直接判斷，最可靠）──
+  if(user.email===SUPER_ADMIN_EMAIL){
+    currentRole='superadmin'; isAdmin=true;
+    // 若 teacherAccounts 尚無記錄，自動建立
+    try{
+      const snap=await getDoc(doc(db,"teacherAccounts",user.uid));
+      if(!snap.exists()){
+        await setDoc(doc(db,"teacherAccounts",user.uid),{
+          name:'主管理者', email:user.email, phone:'',
+          status:'approved', role:'superadmin', createdAt:nowTs()
+        });
+      }
+      const d=snap.exists()?snap.data():{name:'主管理者'};
+      setupAdminUI(user, d, 'superadmin');
+    }catch(e){
+      // Firestore 寫入失敗也沒關係，還是可以進後台
+      setupAdminUI(user, {name:'主管理者'}, 'superadmin');
+    }
+    return;
+  }
+
+  // ── 教師帳號（讀取 teacherAccounts 判斷狀態）──
+  try{
+    const tchSnap=await getDoc(doc(db,"teacherAccounts",user.uid));
+    if(tchSnap.exists()){
+      const d=tchSnap.data();
+      if(d.status==='approved'){
+        currentRole='teacher'; isAdmin=true;
+        setupAdminUI(user, d, 'teacher');
+        return;
+      } else if(d.status==='pending'){
+        await signOut(auth);
+        showPage('login');
+        document.getElementById('lerr').textContent='⏳ 帳號尚待主管理者審核，請稍後再試。';
+        document.getElementById('login-btn').disabled=false;
+        document.getElementById('login-btn').textContent='🔐 登入後台';
+        return;
+      } else {
+        await signOut(auth);
+        showPage('login');
+        document.getElementById('lerr').textContent='❌ 此帳號已被停用，請聯絡主管理者。';
+        document.getElementById('login-btn').disabled=false;
+        document.getElementById('login-btn').textContent='🔐 登入後台';
+        return;
+      }
+    }
+  }catch(e){}
+
+  // ── 不明帳號（非學生、非教師、非主管理者）→ 登出 ──
+  await signOut(auth);
+  showPage('login');
+  document.getElementById('lerr').textContent='此帳號無法登入後台，請聯絡主管理者。';
+  document.getElementById('login-btn').disabled=false;
+  document.getElementById('login-btn').textContent='🔐 登入後台';
 });
 
 function setupAdminUI(user,data,role){
