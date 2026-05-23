@@ -190,17 +190,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <button class="login-tab" id="ltab-student" onclick="switchLoginTab('student')">🧘 學生登入</button>
   </div>
 
-  <!-- 教師登入表單 -->
+  <!-- 教師登入 / 註冊 -->
   <div id="login-admin-form">
-    <div class="fg"><label>帳號（Email）</label><input type="email" id="lu" placeholder="your@email.com" autocomplete="username"></div>
-    <div class="fg"><label>密碼</label>
-      <div class="pw-wrap">
-        <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-        <button class="pw-toggle" onclick="togglePw('lp')">👁</button>
-      </div>
+    <!-- 子分頁：登入 / 申請帳號 -->
+    <div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem">
+      <button id="tltab-login" onclick="switchTeacherTab('login')"
+        style="flex:1;padding:8px;font-size:13px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">登入</button>
+      <button id="tltab-reg" onclick="switchTeacherTab('reg')"
+        style="flex:1;padding:8px;font-size:13px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:500">申請教師帳號</button>
     </div>
-    <button class="btn-p" id="login-btn" onclick="doLogin()">🔐 登入後台</button>
-    <div id="lerr" class="err-msg"></div>
+    <!-- 教師登入表單 -->
+    <div id="teacher-login-section">
+      <div class="fg"><label>Email</label><input type="email" id="lu" placeholder="your@email.com" autocomplete="username"></div>
+      <div class="fg"><label>密碼</label>
+        <div class="pw-wrap">
+          <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+          <button class="pw-toggle" onclick="togglePw('lp')">👁</button>
+        </div>
+      </div>
+      <button class="btn-p" id="login-btn" onclick="doLogin()">🔐 登入後台</button>
+      <div id="lerr" class="err-msg"></div>
+    </div>
+    <!-- 教師申請帳號表單（需主管理者審核）-->
+    <div id="teacher-reg-section" style="display:none">
+      <div style="background:var(--sgl);border:1px solid var(--sg);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--sgd);margin-bottom:12px;line-height:1.6">
+        📋 申請送出後，需由<strong>主管理者審核</strong>才能使用後台功能。審核通過後你會收到 Email 通知。
+      </div>
+      <div class="fg"><label>姓名 ＊</label><input type="text" id="treg-name" placeholder="請輸入真實姓名"></div>
+      <div class="fg"><label>Email ＊</label><input type="email" id="treg-email" placeholder="your@email.com"></div>
+      <div class="fg"><label>手機 ＊</label><input type="tel" id="treg-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
+      <div class="fg"><label>密碼 ＊（至少 6 碼）</label>
+        <div class="pw-wrap">
+          <input type="password" id="treg-pw" placeholder="••••••••">
+          <button class="pw-toggle" onclick="togglePw('treg-pw')">👁</button>
+        </div>
+      </div>
+      <button class="btn-p" id="treg-btn" onclick="doTeacherRegister()">📩 送出申請</button>
+      <div id="treg-msg" class="err-msg"></div>
+    </div>
   </div>
 
   <!-- 學生登入 / 註冊 -->
@@ -300,8 +327,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     </div>
     <div class="hdr-r">
       <span style="font-size:12px;opacity:.8" id="admin-lbl"></span>
-      <span class="auth-badge auth-ok">🔒 已驗證</span>
-      <button class="pill-btn" onclick="backToAdmin(); goStu();" style="background:rgba(100,200,120,.2);border-color:rgba(100,200,120,.4)">👁 預覽學生頁</button>
+      <span class="auth-badge auth-ok" id="role-badge">🔒 已驗證</span>
+      <button class="pill-btn" onclick="goStu();" style="background:rgba(100,200,120,.2);border-color:rgba(100,200,120,.4)">👁 預覽學生頁</button>
       <button class="pill-btn" onclick="doLogout()">登出</button>
     </div>
   </div>
@@ -312,6 +339,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <button class="tb" id="atab-cs" onclick="aTab('cs')">📋 時段管理</button>
     <button class="tb" id="atab-bk" onclick="aTab('bk')">👥 預約紀錄</button>
     <button class="tb" id="atab-stu" onclick="aTab('stu')">🧘 學生帳號</button>
+    <button class="tb" id="atab-teachers" onclick="aTab('teachers')" style="display:none">👩‍🏫 教師帳號</button>
   </div>
   <div class="view active" id="av-ov"></div>
   <div class="view" id="av-names">
@@ -394,6 +422,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
   <div class="view" id="av-cs"></div>
   <div class="view" id="av-bk"></div>
   <div class="view" id="av-stu"></div>
+  <div class="view" id="av-teachers"></div>
 </div>
 </div>
 
@@ -435,10 +464,13 @@ const colSlots    = collection(db,"slots");
 const colBookings = collection(db,"bookings");
 const colStudents = collection(db,"students");
 
-let slots=[],bookings=[],courseNames=[],teachers=[],students=[];
+let slots=[],bookings=[],courseNames=[],teachers=[],students=[],teacherAccounts=[];
 let currentStudentId='',currentStudentName='';
-let unsubSlots=null,unsubBookings=null,unsubSettings=null,unsubTeachers=null,unsubStudents=null;
+let currentRole=''; // 'superadmin' | 'teacher' | 'student' | ''
+let unsubSlots=null,unsubBookings=null,unsubSettings=null,unsubTeachers=null,unsubStudents=null,unsubTeacherAccounts=null;
 let isAdmin=false;
+// ── 主管理者 Email（只有這個帳號是 superadmin）──
+const SUPER_ADMIN_EMAIL='sempiternalclass@gmail.com';
 
 const DW=['日','一','二','三','四','五','六'];
 const MW=['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
@@ -462,6 +494,15 @@ window.switchLoginTab=function(t){
   document.getElementById('login-admin-form').style.display=t==='admin'?'block':'none';
   document.getElementById('login-student-form').style.display=t==='student'?'block':'none';
 };
+window.switchTeacherTab=function(tab){
+  const isLogin=(tab==='login');
+  document.getElementById('tltab-login').style.background=isLogin?'var(--sgd)':'transparent';
+  document.getElementById('tltab-login').style.color=isLogin?'#fff':'var(--t2)';
+  document.getElementById('tltab-reg').style.background=isLogin?'transparent':'var(--sgd)';
+  document.getElementById('tltab-reg').style.color=isLogin?'var(--t2)':'#fff';
+  document.getElementById('teacher-login-section').style.display=isLogin?'block':'none';
+  document.getElementById('teacher-reg-section').style.display=isLogin?'none':'block';
+};
 
 // ── 教師登入 ──
 window.doLogin=async function(){
@@ -476,6 +517,37 @@ window.doLogin=async function(){
     const msgs={'auth/invalid-email':'帳號格式錯誤','auth/user-not-found':'帳號不存在','auth/wrong-password':'密碼錯誤','auth/invalid-credential':'帳號或密碼錯誤','auth/too-many-requests':'嘗試次數過多，請稍後再試'};
     err.textContent=msgs[e.code]||('登入失敗：'+e.message);
     btn.disabled=false;btn.textContent='🔐 登入後台';
+  }
+};
+
+// ── 教師申請帳號 ──
+window.doTeacherRegister=async function(){
+  const name=document.getElementById('treg-name').value.trim();
+  const email=document.getElementById('treg-email').value.trim();
+  const phone=document.getElementById('treg-phone').value.trim().replace(/-/g,'');
+  const pw=document.getElementById('treg-pw').value;
+  const msg=document.getElementById('treg-msg');
+  const btn=document.getElementById('treg-btn');
+  if(!name||!email||!phone||!pw){msg.className='msg-err';msg.textContent='請填寫所有欄位';return;}
+  if(!/^09\d{8}$/.test(phone)){msg.className='msg-err';msg.textContent='手機格式錯誤，請輸入 09xxxxxxxx';return;}
+  if(pw.length<6){msg.className='msg-err';msg.textContent='密碼至少 6 碼';return;}
+  btn.disabled=true;btn.textContent='送出中…';msg.textContent='';
+  try{
+    const cred=await createUserWithEmailAndPassword(auth,email,pw);
+    await setDoc(doc(db,'teacherAccounts',cred.user.uid),{
+      name,email,phone,
+      status:'pending',  // pending=待審核, approved=已核准, rejected=已拒絕
+      role:'teacher',
+      createdAt:nowTs()
+    });
+    await signOut(auth); // 申請後先登出，等待審核
+    msg.className='msg-ok';
+    msg.textContent='✅ 申請已送出！待主管理者審核後即可登入。';
+    btn.disabled=false;btn.textContent='📩 送出申請';
+  }catch(e){
+    const msgs={'auth/email-already-in-use':'此 Email 已被使用','auth/weak-password':'密碼強度不足','auth/invalid-email':'Email 格式錯誤'};
+    msg.className='msg-err';msg.textContent=msgs[e.code]||('申請失敗：'+e.message);
+    btn.disabled=false;btn.textContent='📩 送出申請';
   }
 };
 
@@ -576,58 +648,157 @@ window.doRegister=async function(){
 // ── 登出 ──
 window.doLogout=async function(){
   unsubAll();await signOut(auth);
-  isAdmin=false;
-  slots=[];bookings=[];courseNames=[];teachers=[];students=[];
+  isAdmin=false;currentRole='';
+  slots=[];bookings=[];courseNames=[];teachers=[];students=[];teacherAccounts=[];
   goStu();
 };
 function unsubAll(){
-  [unsubSlots,unsubBookings,unsubSettings,unsubTeachers,unsubStudents].forEach(u=>{if(u)u();});
-  unsubSlots=unsubBookings=unsubSettings=unsubTeachers=unsubStudents=null;
+  [unsubSlots,unsubBookings,unsubSettings,unsubTeachers,unsubStudents,unsubTeacherAccounts].forEach(u=>{if(u)u();});
+  unsubSlots=unsubBookings=unsubSettings=unsubTeachers=unsubStudents=unsubTeacherAccounts=null;
 }
 
 // ── Auth 狀態 ──
 onAuthStateChanged(auth,async user=>{
   if(user){
-    // 先判斷是否為學生帳號（存在於 students 集合）
+    // 1. 先檢查是否為學生
     try{
       const stuSnap=await getDoc(doc(db,"students",user.uid));
-      if(stuSnap.exists()&&!currentStudentId){
-        // 學生帳號登入（從 Firebase Auth 觸發，但不是透過 doStuLogin）
+      if(stuSnap.exists()){
         const d=stuSnap.data();
-        isAdmin=false;
-        currentStudentId=user.uid;
-        currentStudentName=d.name||'';
+        currentRole='student';isAdmin=false;
+        currentStudentId=user.uid;currentStudentName=d.name||'';
         document.getElementById('stu-name-label').textContent=d.name?'👋 '+d.name:'';
         document.getElementById('stu-student-login-btn').style.display='none';
         document.getElementById('stu-student-logout-btn').style.display='inline-block';
-        startPublicListeners();
-        showPage('student');
-        sTab('month');
+        startPublicListeners();showPage('student');sTab('month');
         return;
       }
     }catch(e){}
-    if(currentStudentId){
-      // 已由 doStuLogin 處理
+    // 2. 再檢查是否為教師帳號
+    try{
+      const tchSnap=await getDoc(doc(db,"teacherAccounts",user.uid));
+      if(tchSnap.exists()){
+        const d=tchSnap.data();
+        // 主管理者判斷：email 符合 SUPER_ADMIN_EMAIL
+        const isSuperAdmin=(user.email===SUPER_ADMIN_EMAIL);
+        if(isSuperAdmin){
+          currentRole='superadmin';isAdmin=true;
+        } else if(d.status==='approved'){
+          currentRole='teacher';isAdmin=true;
+        } else if(d.status==='pending'){
+          // 待審核：顯示提示後登出
+          await signOut(auth);
+          document.getElementById('lerr').textContent='⏳ 帳號尚待主管理者審核，請稍後再嘗試登入。';
+          document.getElementById('login-btn').disabled=false;
+          document.getElementById('login-btn').textContent='🔐 登入後台';
+          return;
+        } else {
+          await signOut(auth);
+          document.getElementById('lerr').textContent='❌ 帳號已被拒絕，請聯絡主管理者。';
+          document.getElementById('login-btn').disabled=false;
+          document.getElementById('login-btn').textContent='🔐 登入後台';
+          return;
+        }
+        setupAdminUI(user,d,currentRole);
+        return;
+      }
+    }catch(e){}
+    // 3. 既不是學生也不是教師 → 視為主管理者（第一次使用，尚未建 teacherAccounts 記錄）
+    if(user.email===SUPER_ADMIN_EMAIL){
+      currentRole='superadmin';isAdmin=true;
+      // 自動建立主管理者記錄（若不存在）
+      try{
+        await setDoc(doc(db,"teacherAccounts",user.uid),{
+          name:'主管理者',email:user.email,phone:'',status:'approved',role:'superadmin',createdAt:nowTs()
+        },{merge:true});
+      }catch(e){}
+      setupAdminUI(user,{name:'主管理者'},currentRole);
       return;
     }
-    // 管理員登入
-    isAdmin=true;
-    document.getElementById('admin-lbl').textContent=user.email;
-    showPage('admin');
-    startAdminListeners();
-    aTab('ov');
+    // 其他不明帳號 → 登出
+    await signOut(auth);
+    document.getElementById('lerr').textContent='此帳號無法登入後台，請聯絡主管理者。';
     document.getElementById('login-btn').disabled=false;
     document.getElementById('login-btn').textContent='🔐 登入後台';
-    document.getElementById('stu-back-to-admin-btn').style.display='inline-block';
-    document.getElementById('stu-login-btn').style.display='inline-block';
   } else {
-    isAdmin=false;currentStudentId='';currentStudentName='';
+    currentRole='';isAdmin=false;currentStudentId='';currentStudentName='';
     document.getElementById('stu-back-to-admin-btn').style.display='none';
     document.getElementById('stu-student-logout-btn').style.display='none';
     document.getElementById('stu-student-login-btn').style.display='inline-block';
     document.getElementById('stu-login-btn').style.display='inline-block';
   }
 });
+
+function setupAdminUI(user,data,role){
+  const roleLabel=role==='superadmin'?'👑 主管理者':'👩‍🏫 教師';
+  document.getElementById('admin-lbl').textContent=(data.name||user.email);
+  document.getElementById('role-badge').textContent=roleLabel;
+  document.getElementById('role-badge').style.background=role==='superadmin'?'#fff3cd':'#e8f0ea';
+  document.getElementById('role-badge').style.color=role==='superadmin'?'#7a5500':'var(--sgd)';
+  // 載入教師權限
+  if(role==='teacher'&&data.permissions){
+    currentPerms=data.permissions;
+  } else if(role==='superadmin'){
+    currentPerms={};
+  } else {
+    currentPerms={};
+  }
+  showPage('admin');
+  startAdminListeners();
+  applyTabVisibility();
+  goFirstAvailableTab();
+  document.getElementById('login-btn').disabled=false;
+  document.getElementById('login-btn').textContent='🔐 登入後台';
+  document.getElementById('stu-back-to-admin-btn').style.display='inline-block';
+  document.getElementById('stu-login-btn').style.display='inline-block';
+}
+
+// ══ 權限系統 ══
+// 五大功能 × 四種操作
+const MODULES = [
+  {key:'names',  label:'課程類型'},
+  {key:'add',    label:'新增時段'},
+  {key:'cs',     label:'時段管理'},
+  {key:'bk',     label:'預約紀錄'},
+  {key:'stu',    label:'學生帳號'},
+];
+const ACTIONS = ['view','create','edit','delete'];
+const ACTION_LABELS = {view:'查看', create:'新增', edit:'修改', delete:'刪除'};
+
+// 取得目前登入教師的權限物件
+let currentPerms = {}; // e.g. {names:{view:true,create:false,...}, ...}
+
+function can(module, action){
+  if(currentRole==='superadmin') return true;
+  return !!(currentPerms[module]&&currentPerms[module][action]);
+}
+
+function applyTabVisibility(){
+  if(currentRole==='superadmin'){
+    // 主管理者：全部顯示
+    ['names','add','cs','bk','stu'].forEach(k=>{
+      const el=document.getElementById('atab-'+k);
+      if(el) el.style.display='';
+    });
+    const tchTab=document.getElementById('atab-teachers');
+    if(tchTab) tchTab.style.display='';
+    return;
+  }
+  // 教師：只顯示有 view 權限的 tab
+  MODULES.forEach(m=>{
+    const el=document.getElementById('atab-'+m.key);
+    if(el) el.style.display=can(m.key,'view')?'':'none';
+  });
+  const tchTab=document.getElementById('atab-teachers');
+  if(tchTab) tchTab.style.display='none';
+}
+
+// ── 後台首頁自動跳到第一個有權限的 tab ──
+function goFirstAvailableTab(){
+  if(currentRole==='superadmin'){aTab('ov');return;}
+  const first=MODULES.find(m=>can(m.key,'view'));
+  if(first) aTab(first.key); else aTab('ov');
+}
 
 function startPublicListeners(){
   if(unsubSlots) return;
@@ -661,6 +832,13 @@ function startAdminListeners(){
     unsubStudents=onSnapshot(query(colStudents,orderBy("createdAt","desc")),snap=>{
       students=snap.docs.map(d=>({id:d.id,...d.data()}));
       if(document.getElementById('av-stu').classList.contains('active')) renderStudents();
+    });
+  }
+  if(!unsubTeacherAccounts){
+    const colTA=collection(db,"teacherAccounts");
+    unsubTeacherAccounts=onSnapshot(query(colTA,orderBy("createdAt","desc")),snap=>{
+      teacherAccounts=snap.docs.map(d=>({id:d.id,...d.data()}));
+      if(document.getElementById('av-teachers').classList.contains('active')) renderTeacherAccounts();
     });
   }
 }
@@ -699,6 +877,7 @@ window.aTab=function(n){
   if(n==='cs') renderCS();
   if(n==='bk') renderBK();
   if(n==='stu') renderStudents();
+  if(n==='teachers') renderTeacherAccounts();
 };
 
 // ── 課程類型 ──
@@ -707,11 +886,16 @@ function renderNames(){
   if(!courseNames.length){w.innerHTML='<div style="font-size:13px;color:var(--t2)">尚無課程類型，請新增。</div>';return;}
   courseNames.forEach(nm=>{
     const t=document.createElement('div');t.className='name-tag';
-    t.innerHTML=`${nm}<button onclick="window.delName('${nm}')">✕</button>`;
+    const delBtn=can('names','delete')?`<button onclick="window.delName('${nm}')">✕</button>`:'';
+    t.innerHTML=`${nm}${delBtn}`;
     w.appendChild(t);
   });
+  // 新增列：有 create 權限才顯示
+  const addRow=document.querySelector('.add-name-row');
+  if(addRow) addRow.style.display=can('names','create')?'flex':'none';
 }
 window.addCourseName=async function(){
+  if(!can('names','create')){alert('您沒有新增課程類型的權限');return;}
   const v=document.getElementById('new-name-input').value.trim();
   const msg=document.getElementById('names-msg');
   if(!v){msg.className='msg-err';msg.textContent='請輸入課程名稱';return;}
@@ -722,6 +906,7 @@ window.addCourseName=async function(){
   setTimeout(()=>{msg.textContent='';},2500);
 };
 window.delName=async function(nm){
+  if(!can('names','delete')){alert('您沒有刪除課程類型的權限');return;}
   if(!confirm(`確定要刪除課程類型「${nm}」嗎？`)) return;
   await setDoc(doc(db,"settings","courseNames"),{list:courseNames.filter(x=>x!==nm)});
 };
@@ -748,6 +933,7 @@ window.deleteTeacherRecord=async function(){
 
 // ── 新增時段 ──
 window.addSlot=async function(){
+  if(!can('add','create')){alert('您沒有新增時段的權限');return;}
   const date=document.getElementById('nc-date').value;
   const time=document.getElementById('nc-time').value;
   const cap=parseInt(document.getElementById('nc-cap').value)||4;
@@ -878,14 +1064,14 @@ function renderCS(){
         <div class="crow-sub">${s.email}</div>
       </div>
       <span class="badge ${isOpen?'bopen':f?'bfull':'bsage'}" style="font-size:12px;padding:4px 10px">${isOpen?'開放中':s.booked+'/'+s.cap}</span>
-      <button class="btn-sm" style="font-size:13px;padding:5px 12px" onclick="window.openEditSlot('${s.id}')">✎ 編輯</button>
-      <button class="btn-sm btn-danger" style="font-size:13px;padding:5px 12px" onclick="window.delSlot('${s.id}')">🗑 刪除</button>
+      ${can('cs','edit')?`<button class="btn-sm" style="font-size:13px;padding:5px 12px" onclick="window.openEditSlot('${s.id}')">✎ 編輯</button>`:''}
+      ${can('cs','delete')?`<button class="btn-sm btn-danger" style="font-size:13px;padding:5px 12px" onclick="window.delSlot('${s.id}')">🗑 刪除</button>`:''}
     </div>`;
   });
   if(!slots.length) html+='<div style="font-size:13px;color:var(--t2);padding:8px">尚無時段</div>';
   html+='</div>';el.innerHTML=html;
 }
-window.delSlot=async function(id){if(!confirm('確定要刪除這個時段嗎？')) return;await deleteDoc(doc(db,"slots",id));};
+window.delSlot=async function(id){if(!can('cs','delete')){alert('您沒有刪除時段的權限');return;}if(!confirm('確定要刪除這個時段嗎？')) return;await deleteDoc(doc(db,"slots",id));};
 window.openEditSlot=function(id){
   const s=slots.find(x=>x.id===id);if(!s) return;
   document.getElementById('mo-title').textContent='編輯時段';
@@ -900,6 +1086,7 @@ window.openEditSlot=function(id){
   openMo();
 };
 window.saveEditSlot=async function(id){
+  if(!can('cs','edit')){alert('您沒有修改時段的權限');return;}
   const btn=document.getElementById('save-edit-btn');btn.disabled=true;btn.textContent='儲存中…';
   try{
     await updateDoc(doc(db,"slots",id),{name:document.getElementById('ec-n').value,date:document.getElementById('ec-d').value,time:document.getElementById('ec-t').value,cap:parseInt(document.getElementById('ec-c').value)||1,booked:Math.max(0,parseInt(document.getElementById('ec-b').value)||0),teacher:document.getElementById('ec-tc').value,email:document.getElementById('ec-em').value});
@@ -917,12 +1104,13 @@ function renderBK(){
       <div style="font-weight:600;font-size:13px">${b.name} <span style="font-size:11px;color:var(--t2)">${b.phone}</span></div>
       <div style="font-size:12px;color:var(--t2);margin-top:2px">${b.courseName} · 📅 ${b.date} 🕐 ${b.time} · 👤 ${b.teacher}</div>
     </div><span class="itag">${b.ts}</span>
-    <button class="btn-sm" onclick="window.openEditBk('${b.id}')">✎</button>
-    <button class="btn-sm btn-danger" onclick="window.delBk('${b.id}')">🗑</button></div>`;
+    ${can('bk','edit')?`<button class="btn-sm" onclick="window.openEditBk('${b.id}')">✎</button>`:''}
+    ${can('bk','delete')?`<button class="btn-sm btn-danger" onclick="window.delBk('${b.id}')">🗑</button>`:''}</div>\`;
   });
   html+='</div>';el.innerHTML=html;
 }
 window.delBk=async function(bid){
+  if(!can('bk','delete')){alert('您沒有刪除預約的權限');return;}
   const b=bookings.find(x=>x.id===bid);if(!b) return;
   if(!confirm(`確定要刪除「${b.name}」的預約？系統將自動扣除名額。`)) return;
   try{
@@ -945,6 +1133,7 @@ window.openEditBk=function(bid){
   openMo();
 };
 window.saveEditBk=async function(bid){
+  if(!can('bk','edit')){alert('您沒有修改預約的權限');return;}
   const b=bookings.find(x=>x.id===bid);if(!b) return;
   const name=document.getElementById('ebk-n').value.trim();
   const phone=document.getElementById('ebk-p').value.trim().replace(/-/g,'');
@@ -984,7 +1173,7 @@ function renderStudents(){
               }
             </div>
           </div>
-          <button class="btn-sm" style="font-size:12px;padding:5px 12px;white-space:nowrap" onclick="window.openEditStudent('${s.id}')">✎ 設定</button>
+          ${can('stu','edit')?`<button class="btn-sm" style="font-size:12px;padding:5px 12px;white-space:nowrap" onclick="window.openEditStudent('${s.id}')">✎ 設定</button>`:''}
         </div>
       </div>`;
     });
@@ -1014,6 +1203,7 @@ window.openEditStudent=function(sid){
 };
 
 window.saveEditStudent=async function(sid){
+  if(!can('stu','edit')){alert('您沒有修改學生帳號的權限');return;}
   const quota=parseInt(document.getElementById('es-quota').value)||0;
   const checked=[...document.querySelectorAll('#mo-body input[type=checkbox]:checked')].map(c=>c.value);
   const btn=document.getElementById('save-es-btn');const msg=document.getElementById('es-msg');
@@ -1022,6 +1212,169 @@ window.saveEditStudent=async function(sid){
     await updateDoc(doc(db,"students",sid),{totalQuota:quota,allowedCourses:checked});
     closeMo();
   }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;btn.disabled=false;btn.textContent='儲存設定';}
+};
+
+// ── 教師帳號管理（主管理者專用）──
+function renderTeacherAccounts(){
+  const el=document.getElementById('av-teachers');
+  const pending=teacherAccounts.filter(t=>t.status==='pending'&&t.role!=='superadmin');
+  const approved=teacherAccounts.filter(t=>t.status==='approved'&&t.role!=='superadmin');
+  const rejected=teacherAccounts.filter(t=>t.status==='rejected');
+
+  let html=`<div class="acard">
+    <h3>👑 主管理者功能：教師帳號管理</h3>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.6">
+      審核教師申請、設定各教師的功能權限。核准後教師才可登入後台，且只能使用被授權的功能。
+    </div>`;
+
+  // 待審核
+  html+=`<div class="section-hdr" style="color:#7a5500">⏳ 待審核申請（${pending.length} 筆）</div>`;
+  if(!pending.length){html+='<div style="font-size:13px;color:var(--t2);padding:8px 0 12px">目前無待審核申請</div>';}
+  else pending.forEach(t=>{
+    html+=`<div class="crow" style="background:#fff8e1;border:1px solid #ffe082;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+      <div class="dot" style="background:#f0a500"></div>
+      <div style="flex:1;min-width:200px">
+        <div class="crow-name">${t.name}</div>
+        <div class="crow-dt" style="color:#7a5500">📧 ${t.email} &nbsp; 📱 ${t.phone||'—'}</div>
+        <div class="crow-sub">申請時間：${t.createdAt||'—'}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn-p" style="width:auto;padding:6px 14px;font-size:12px;background:#2d5a3d" onclick="window.approveTeacher('${t.id}')">✅ 核准</button>
+        <button class="btn-sm btn-danger" style="padding:6px 14px;font-size:12px" onclick="window.rejectTeacher('${t.id}')">❌ 拒絕</button>
+      </div>
+    </div>`;
+  });
+
+  // 已核准
+  html+=`<div class="section-hdr" style="margin-top:8px">✅ 已核准教師（${approved.length} 位）</div>`;
+  if(!approved.length){html+='<div style="font-size:13px;color:var(--t2);padding:8px 0 12px">尚無已核准的教師帳號</div>';}
+  else approved.forEach(t=>{
+    // 顯示目前權限摘要
+    const p=t.permissions||{};
+    const permSummary=MODULES.map(m=>{
+      const ops=ACTIONS.filter(a=>p[m.key]&&p[m.key][a]);
+      if(!ops.length) return `<span style="font-size:10px;background:var(--wm2);color:var(--t2);padding:1px 5px;border-radius:3px">${m.label}：無</span>`;
+      return `<span style="font-size:10px;background:var(--sgl);color:var(--sgd);padding:1px 5px;border-radius:3px">${m.label}：${ops.map(a=>ACTION_LABELS[a]).join('/')}</span>`;
+    }).join(' ');
+    html+=`<div class="crow" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
+      <div class="dot"></div>
+      <div style="flex:1;min-width:200px">
+        <div class="crow-name">${t.name}</div>
+        <div class="crow-dt">📧 ${t.email} &nbsp; 📱 ${t.phone||'—'}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${permSummary}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap">
+        <button class="btn-p" style="width:auto;padding:6px 14px;font-size:12px" onclick="window.openPermModal('${t.id}')">🔑 權限設定</button>
+        <button class="btn-sm btn-danger" style="padding:6px 12px;font-size:12px" onclick="window.rejectTeacher('${t.id}')">停用</button>
+      </div>
+    </div>`;
+  });
+
+  // 已停用
+  if(rejected.length){
+    html+=`<div class="section-hdr" style="margin-top:8px;color:var(--t2)">❌ 已停用帳號（${rejected.length} 位）</div>`;
+    rejected.forEach(t=>{
+      html+=`<div class="crow" style="opacity:.6;margin-bottom:6px">
+        <div class="dot" style="background:var(--wm3)"></div>
+        <div style="flex:1"><div class="crow-name">${t.name}</div><div class="crow-dt">📧 ${t.email}</div></div>
+        <button class="btn-sm" style="padding:5px 12px;font-size:12px" onclick="window.approveTeacher('${t.id}')">恢復</button>
+      </div>`;
+    });
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+
+// ── 開啟權限設定 Modal ──
+window.openPermModal=function(id){
+  const t=teacherAccounts.find(x=>x.id===id);if(!t) return;
+  const p=t.permissions||{};
+  document.getElementById('mo-title').textContent='🔑 權限設定';
+  document.getElementById('mo-meta').innerHTML=`<strong>${t.name}</strong> &nbsp; ${t.email}`;
+
+  // 建立權限矩陣表格
+  let rows='';
+  MODULES.forEach(m=>{
+    const mp=p[m.key]||{};
+    const cells=ACTIONS.map(a=>{
+      const chk=mp[a]?'checked':'';
+      return `<td style="text-align:center;padding:6px 8px">
+        <input type="checkbox" data-mod="${m.key}" data-act="${a}" ${chk}
+          style="width:16px;height:16px;accent-color:var(--sgd);cursor:pointer">
+      </td>`;
+    }).join('');
+    rows+=`<tr style="border-bottom:1px solid var(--bd)">
+      <td style="padding:8px 10px;font-weight:600;font-size:13px;white-space:nowrap">${m.label}</td>
+      ${cells}
+    </tr>`;
+  });
+
+  document.getElementById('mo-body').innerHTML=`
+    <div style="overflow-x:auto;margin-bottom:12px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:var(--bg2)">
+            <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--t2);white-space:nowrap">功能</th>
+            ${ACTIONS.map(a=>`<th style="padding:8px;text-align:center;font-size:12px;color:var(--t2)">${ACTION_LABELS[a]}</th>`).join('')}
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div style="background:var(--bg2);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--t2);margin-bottom:12px;line-height:1.6">
+      💡 <strong>查看</strong>：可看到該功能頁面 &nbsp;｜&nbsp;
+      <strong>新增</strong>：可建立新資料 &nbsp;｜&nbsp;
+      <strong>修改</strong>：可編輯現有資料 &nbsp;｜&nbsp;
+      <strong>刪除</strong>：可刪除資料
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-g" onclick="closeMo()">取消</button>
+      <button class="btn-p" id="save-perm-btn" onclick="window.savePerms('${id}')" style="margin-top:0">💾 儲存權限</button>
+    </div>
+    <div id="perm-msg"></div>`;
+  openMo();
+};
+
+// ── 儲存權限 ──
+window.savePerms=async function(id){
+  const btn=document.getElementById('save-perm-btn');
+  const msg=document.getElementById('perm-msg');
+  btn.disabled=true;btn.textContent='儲存中…';
+  // 讀取所有 checkbox 狀態
+  const perms={};
+  document.querySelectorAll('#mo-body input[type=checkbox]').forEach(cb=>{
+    const mod=cb.dataset.mod;const act=cb.dataset.act;
+    if(!perms[mod]) perms[mod]={};
+    perms[mod][act]=cb.checked;
+  });
+  // 如果有任何 create/edit/delete，自動補上 view
+  MODULES.forEach(m=>{
+    if(!perms[m.key]) perms[m.key]={};
+    const mp=perms[m.key];
+    if(mp.create||mp.edit||mp.delete) mp.view=true;
+  });
+  try{
+    await updateDoc(doc(db,"teacherAccounts",id),{permissions:perms});
+    msg.className='msg-ok';msg.textContent='✅ 權限已儲存！';
+    setTimeout(()=>{closeMo();},1000);
+  }catch(e){
+    msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;
+    btn.disabled=false;btn.textContent='💾 儲存權限';
+  }
+};
+
+window.approveTeacher=async function(id){
+  if(!confirm('確定核准此教師帳號？核准後即可登入後台。')) return;
+  try{
+    await updateDoc(doc(db,"teacherAccounts",id),{status:'approved'});
+  }catch(e){alert('操作失敗：'+e.message);}
+};
+window.rejectTeacher=async function(id){
+  const t=teacherAccounts.find(x=>x.id===id);
+  if(!confirm(`確定停用「${t?.name||'此教師'}」的帳號？`)) return;
+  try{
+    await updateDoc(doc(db,"teacherAccounts",id),{status:'rejected'});
+  }catch(e){alert('操作失敗：'+e.message);}
 };
 
 // ── 學生月曆 ──
