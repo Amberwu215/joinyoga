@@ -1147,7 +1147,7 @@ function renderBK(){
       <div style="font-size:12px;color:var(--t2);margin-top:2px">${b.courseName} · 📅 ${b.date} 🕐 ${b.time} · 👤 ${b.teacher}</div>
     </div><span class="itag">${b.ts}</span>
     ${can('bk','edit')?`<button class="btn-sm" onclick="window.openEditBk('${b.id}')">✎</button>`:''}
-    ${can('bk','delete')?`<button class="btn-sm btn-danger" onclick="window.delBk('${b.id}')">🗑</button>`:''}</div>\`;
+    ${can('bk','delete')?`<button class="btn-sm btn-danger" onclick="window.delBk('${b.id}')">🗑</button>`:''}</div>`;
   });
   html+='</div>';el.innerHTML=html;
 }
