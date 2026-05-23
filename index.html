@@ -186,8 +186,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <div style="font-size:22px;font-weight:600;color:var(--t1)">揪你瑜珈</div>
   </div>
   <div class="login-tabs">
-    <button class="login-tab active" id="ltab-admin" onclick="switchLoginTab('admin')">🔐 教師後台登入</button>
-    <button class="login-tab" id="ltab-student" onclick="switchLoginTab('student')">🧘 學生預約</button>
+    <button class="login-tab active" id="ltab-admin" onclick="switchLoginTab('admin')">🔐 教師登入</button>
+    <button class="login-tab" id="ltab-student" onclick="switchLoginTab('student')">🧘 學生登入</button>
   </div>
 
   <!-- 教師登入表單 -->
@@ -203,11 +203,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <div id="lerr" class="err-msg"></div>
   </div>
 
-  <!-- 學生入口 -->
+  <!-- 學生登入 / 註冊 -->
   <div id="login-student-form" style="display:none">
-    <button class="btn-p" onclick="goStu()" style="margin-bottom:10px">📅 前往課程預約行事曆</button>
-    <div style="border-top:1px solid var(--bd);padding-top:12px;margin-top:4px">
-      <div style="font-size:12px;color:var(--t2);margin-bottom:10px;text-align:center">還沒有帳號？馬上註冊，享有堂數紀錄功能</div>
+    <!-- 子分頁切換 -->
+    <div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem">
+      <button id="sltab-login" onclick="switchStuTab('login')"
+        style="flex:1;padding:8px;font-size:13px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">登入</button>
+      <button id="sltab-reg" onclick="switchStuTab('reg')"
+        style="flex:1;padding:8px;font-size:13px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:500">註冊新帳號</button>
+    </div>
+    <!-- 學生登入表單 -->
+    <div id="stu-login-section">
+      <div class="fg"><label>手機號碼</label><input type="tel" id="slu-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
+      <div class="fg"><label>密碼</label>
+        <div class="pw-wrap">
+          <input type="password" id="slu-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doStuLogin()">
+          <button class="pw-toggle" onclick="togglePw('slu-pw')">👁</button>
+        </div>
+      </div>
+      <button class="btn-p" id="slu-btn" onclick="doStuLogin()">🧘 學生登入</button>
+      <div id="slu-err" class="err-msg"></div>
+      <div style="text-align:center;margin-top:10px">
+        <button class="btn-g" style="font-size:12px;width:100%" onclick="goStu()">📅 不登入，直接前往預約行事曆</button>
+      </div>
+    </div>
+    <!-- 學生註冊表單 -->
+    <div id="stu-reg-section" style="display:none">
       <div class="fg"><label>姓名 ＊</label><input type="text" id="reg-name" placeholder="請輸入真實姓名"></div>
       <div class="fg"><label>Email ＊</label><input type="email" id="reg-email" placeholder="your@email.com"></div>
       <div class="fg"><label>手機 ＊</label><input type="tel" id="reg-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
@@ -234,8 +255,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
       <div><h1>揪你瑜珈</h1><div class="sub">線上課程預約系統</div></div>
     </div>
     <div class="hdr-r">
-      <span id="stu-name-label" style="font-size:12px;opacity:.8"></span>
+      <span id="stu-name-label" style="font-size:12px;opacity:.8;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></span>
       <button class="pill-btn" id="stu-back-to-admin-btn" style="display:none" onclick="backToAdmin()">⚙️ 返回後台</button>
+      <button class="pill-btn" id="stu-student-login-btn" onclick="goStuLoginPage()">🧘 學生登入</button>
+      <button class="pill-btn" id="stu-student-logout-btn" style="display:none" onclick="doStuLogout()">登出</button>
       <button class="pill-btn" id="stu-login-btn" onclick="goLogin()">🔒 教師登入</button>
     </div>
   </div>
@@ -413,6 +436,7 @@ const colBookings = collection(db,"bookings");
 const colStudents = collection(db,"students");
 
 let slots=[],bookings=[],courseNames=[],teachers=[],students=[];
+let currentStudentId='',currentStudentName='';
 let unsubSlots=null,unsubBookings=null,unsubSettings=null,unsubTeachers=null,unsubStudents=null;
 let isAdmin=false;
 
@@ -453,6 +477,69 @@ window.doLogin=async function(){
     err.textContent=msgs[e.code]||('登入失敗：'+e.message);
     btn.disabled=false;btn.textContent='🔐 登入後台';
   }
+};
+
+// ── 學生登入頁子分頁切換 ──
+window.switchStuTab=function(tab){
+  const isLogin=(tab==='login');
+  document.getElementById('sltab-login').style.background=isLogin?'var(--sgd)':'transparent';
+  document.getElementById('sltab-login').style.color=isLogin?'#fff':'var(--t2)';
+  document.getElementById('sltab-reg').style.background=isLogin?'transparent':'var(--sgd)';
+  document.getElementById('sltab-reg').style.color=isLogin?'var(--t2)':'#fff';
+  document.getElementById('stu-login-section').style.display=isLogin?'block':'none';
+  document.getElementById('stu-reg-section').style.display=isLogin?'none':'block';
+};
+
+// ── 前往學生登入頁 ──
+window.goStuLoginPage=function(){
+  showPage('login');
+  switchLoginTab('student');
+  switchStuTab('login');
+};
+
+// ── 學生登入（用手機號碼查出 Email，再用 Firebase Auth 登入）──
+window.doStuLogin=async function(){
+  const phone=(document.getElementById('slu-phone').value||'').trim().replace(/-/g,'');
+  const pw=document.getElementById('slu-pw').value;
+  const err=document.getElementById('slu-err');
+  const btn=document.getElementById('slu-btn');
+  if(!phone||!pw){err.className='msg-err';err.textContent='請填寫手機號碼和密碼';return;}
+  if(!/^09\d{8}$/.test(phone)){err.className='msg-err';err.textContent='手機格式錯誤，請輸入 09xxxxxxxx';return;}
+  btn.disabled=true;btn.textContent='登入中…';err.textContent='';
+  try{
+    // 從 Firestore 查詢對應的 Email
+    const {getDocs,query,collection,where}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const q=query(collection(db,"students"),where("phone","==",phone));
+    const snap=await getDocs(q);
+    if(snap.empty){err.className='msg-err';err.textContent='找不到此手機號碼的帳號，請先註冊';btn.disabled=false;btn.textContent='🧘 學生登入';return;}
+    const stuData=snap.docs[0].data();
+    const stuId=snap.docs[0].id;
+    // 用 Email + 密碼登入 Firebase Auth
+    const {signInWithEmailAndPassword}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js");
+    await signInWithEmailAndPassword(auth,stuData.email,pw);
+    // 登入後標記為學生（非管理員）
+    isAdmin=false;
+    currentStudentId=stuId;
+    currentStudentName=stuData.name;
+    document.getElementById('stu-name-label').textContent='👋 '+stuData.name;
+    document.getElementById('stu-student-login-btn').style.display='none';
+    document.getElementById('stu-student-logout-btn').style.display='inline-block';
+    document.getElementById('stu-login-btn').style.display='inline-block';
+    goStu();
+  }catch(e){
+    const msgs={'auth/wrong-password':'密碼錯誤','auth/invalid-credential':'手機號碼或密碼錯誤','auth/too-many-requests':'嘗試次數過多，請稍後再試'};
+    err.className='msg-err';err.textContent=msgs[e.code]||('登入失敗：'+e.message);
+    btn.disabled=false;btn.textContent='🧘 學生登入';
+  }
+};
+
+// ── 學生登出 ──
+window.doStuLogout=async function(){
+  await signOut(auth);
+  isAdmin=false;currentStudentId='';currentStudentName='';
+  document.getElementById('stu-name-label').textContent='';
+  document.getElementById('stu-student-login-btn').style.display='inline-block';
+  document.getElementById('stu-student-logout-btn').style.display='none';
 };
 
 // ── 學生註冊 ──
@@ -499,10 +586,31 @@ function unsubAll(){
 }
 
 // ── Auth 狀態 ──
-onAuthStateChanged(auth,user=>{
+onAuthStateChanged(auth,async user=>{
   if(user){
-    // 判斷是否為管理員（可依需求改成讀取 Firestore 角色）
-    // 目前策略：有密碼登入 = 管理員
+    // 先判斷是否為學生帳號（存在於 students 集合）
+    try{
+      const stuSnap=await getDoc(doc(db,"students",user.uid));
+      if(stuSnap.exists()&&!currentStudentId){
+        // 學生帳號登入（從 Firebase Auth 觸發，但不是透過 doStuLogin）
+        const d=stuSnap.data();
+        isAdmin=false;
+        currentStudentId=user.uid;
+        currentStudentName=d.name||'';
+        document.getElementById('stu-name-label').textContent=d.name?'👋 '+d.name:'';
+        document.getElementById('stu-student-login-btn').style.display='none';
+        document.getElementById('stu-student-logout-btn').style.display='inline-block';
+        startPublicListeners();
+        showPage('student');
+        sTab('month');
+        return;
+      }
+    }catch(e){}
+    if(currentStudentId){
+      // 已由 doStuLogin 處理
+      return;
+    }
+    // 管理員登入
     isAdmin=true;
     document.getElementById('admin-lbl').textContent=user.email;
     showPage('admin');
@@ -511,10 +619,12 @@ onAuthStateChanged(auth,user=>{
     document.getElementById('login-btn').disabled=false;
     document.getElementById('login-btn').textContent='🔐 登入後台';
     document.getElementById('stu-back-to-admin-btn').style.display='inline-block';
-    document.getElementById('stu-login-btn').style.display='none';
+    document.getElementById('stu-login-btn').style.display='inline-block';
   } else {
-    isAdmin=false;
+    isAdmin=false;currentStudentId='';currentStudentName='';
     document.getElementById('stu-back-to-admin-btn').style.display='none';
+    document.getElementById('stu-student-logout-btn').style.display='none';
+    document.getElementById('stu-student-login-btn').style.display='inline-block';
     document.getElementById('stu-login-btn').style.display='inline-block';
   }
 });
