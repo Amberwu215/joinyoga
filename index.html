@@ -166,6 +166,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 .student-quota{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .quota-tag{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--sgl);color:var(--sgd);font-weight:600}
 .quota-tag.used{background:var(--wm2);color:var(--t2)}
+/* 課程類型顏色 */
+.cat-beginner{background:#e8f5e8;color:#2d6a2d;border-left-color:#4a9a4a}
+.cat-advanced{background:#fff3e0;color:#8a4000;border-left-color:#e07000}
+.cat-equipment{background:#f3e8ff;color:#5a1a8a;border-left-color:#9940cc}
+.cat-beginner.full{background:#fef2f2;color:#a32d2d;border-left-color:#a32d2d}
+.cat-advanced.full{background:#fef2f2;color:#a32d2d;border-left-color:#a32d2d}
+.cat-equipment.full{background:#fef2f2;color:#a32d2d;border-left-color:#a32d2d}
+.cat-open{background:var(--bg2);color:var(--t2);border-left:2px dashed var(--wm3);font-style:italic}
 @media(max-width:600px){
   .hdr{padding:.75rem 1rem}
   .view{padding:1rem}
@@ -190,83 +198,38 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <button class="login-tab" id="ltab-student" onclick="switchLoginTab('student')">🧘 學生登入</button>
   </div>
 
-  <!-- 教師登入 / 註冊 -->
+  <!-- 教師登入（帳號由管理者建立）-->
   <div id="login-admin-form">
-    <!-- 子分頁：登入 / 申請帳號 -->
-    <div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem">
-      <button id="tltab-login" onclick="switchTeacherTab('login')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">登入</button>
-      <button id="tltab-reg" onclick="switchTeacherTab('reg')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:500">申請教師帳號</button>
+    <div class="fg"><label>Email</label><input type="email" id="lu" placeholder="your@email.com" autocomplete="username"></div>
+    <div class="fg"><label>密碼</label>
+      <div class="pw-wrap">
+        <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="pw-toggle" onclick="togglePw('lp')">👁</button>
+      </div>
     </div>
-    <!-- 教師登入表單 -->
-    <div id="teacher-login-section">
-      <div class="fg"><label>Email</label><input type="email" id="lu" placeholder="your@email.com" autocomplete="username"></div>
-      <div class="fg"><label>密碼</label>
-        <div class="pw-wrap">
-          <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-          <button class="pw-toggle" onclick="togglePw('lp')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="login-btn" onclick="doLogin()">🔐 登入後台</button>
-      <div id="lerr" class="err-msg"></div>
-    </div>
-    <!-- 教師申請帳號表單（需主管理者審核）-->
-    <div id="teacher-reg-section" style="display:none">
-      <div style="background:var(--sgl);border:1px solid var(--sg);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--sgd);margin-bottom:12px;line-height:1.6">
-        📋 申請送出後，需由<strong>主管理者審核</strong>才能使用後台功能。審核通過後你會收到 Email 通知。
-      </div>
-      <div class="fg"><label>姓名 ＊</label><input type="text" id="treg-name" placeholder="請輸入真實姓名"></div>
-      <div class="fg"><label>Email ＊</label><input type="email" id="treg-email" placeholder="your@email.com"></div>
-      <div class="fg"><label>手機 ＊</label><input type="tel" id="treg-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
-      <div class="fg"><label>密碼 ＊（至少 6 碼）</label>
-        <div class="pw-wrap">
-          <input type="password" id="treg-pw" placeholder="••••••••">
-          <button class="pw-toggle" onclick="togglePw('treg-pw')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="treg-btn" onclick="doTeacherRegister()">📩 送出申請</button>
-      <div id="treg-msg" class="err-msg"></div>
+    <button class="btn-p" id="login-btn" onclick="doLogin()">🔐 登入後台</button>
+    <div id="lerr" class="err-msg"></div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--t2);line-height:1.6;text-align:center">
+      教師帳號由管理者建立，如需帳號請聯絡管理者。
     </div>
   </div>
 
-  <!-- 學生登入 / 註冊 -->
+  <!-- 學生登入（帳號由管理者建立）-->
   <div id="login-student-form" style="display:none">
-    <!-- 子分頁切換 -->
-    <div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem">
-      <button id="sltab-login" onclick="switchStuTab('login')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">登入</button>
-      <button id="sltab-reg" onclick="switchStuTab('reg')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:500">註冊新帳號</button>
-    </div>
-    <!-- 學生登入表單 -->
-    <div id="stu-login-section">
-      <div class="fg"><label>手機號碼</label><input type="tel" id="slu-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
-      <div class="fg"><label>密碼</label>
-        <div class="pw-wrap">
-          <input type="password" id="slu-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doStuLogin()">
-          <button class="pw-toggle" onclick="togglePw('slu-pw')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="slu-btn" onclick="doStuLogin()">🧘 學生登入</button>
-      <div id="slu-err" class="err-msg"></div>
-      <div style="text-align:center;margin-top:10px">
-        <button class="btn-g" style="font-size:12px;width:100%" onclick="goStu()">📅 不登入，直接前往預約行事曆</button>
+    <div class="fg"><label>手機號碼</label><input type="tel" id="slu-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
+    <div class="fg"><label>密碼</label>
+      <div class="pw-wrap">
+        <input type="password" id="slu-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doStuLogin()">
+        <button class="pw-toggle" onclick="togglePw('slu-pw')">👁</button>
       </div>
     </div>
-    <!-- 學生註冊表單 -->
-    <div id="stu-reg-section" style="display:none">
-      <div class="fg"><label>姓名 ＊</label><input type="text" id="reg-name" placeholder="請輸入真實姓名"></div>
-      <div class="fg"><label>Email ＊</label><input type="email" id="reg-email" placeholder="your@email.com"></div>
-      <div class="fg"><label>手機 ＊</label><input type="tel" id="reg-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
-      <div class="fg"><label>密碼 ＊（至少 6 碼）</label>
-        <div class="pw-wrap">
-          <input type="password" id="reg-pw" placeholder="••••••••">
-          <button class="pw-toggle" onclick="togglePw('reg-pw')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="reg-btn" onclick="doRegister()">✅ 註冊學生帳號</button>
-      <div id="reg-msg" class="err-msg"></div>
+    <button class="btn-p" id="slu-btn" onclick="doStuLogin()">🧘 學生登入</button>
+    <div id="slu-err" class="err-msg"></div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="btn-g" style="font-size:12px;width:100%" onclick="goStu()">📅 不登入，直接前往預約行事曆</button>
+    </div>
+    <div style="margin-top:10px;padding:10px 12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--t2);line-height:1.6;text-align:center">
+      學生帳號由管理者建立，如需帳號請聯絡教室。
     </div>
   </div>
 </div>
@@ -345,14 +308,31 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
   <div class="view" id="av-names">
     <div class="acard">
       <h3>🏷 課程類型管理</h3>
-      <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.6">在這裡設定可供學生選擇的課程類型。學生預約時會從這個清單中選擇想上的課。</div>
-      <div class="section-hdr">目前課程類型</div>
-      <div class="names-wrap" id="names-wrap"></div>
-      <div class="add-name-row">
-        <input type="text" id="new-name-input" placeholder="輸入新課程類型，例：熱瑜珈" onkeydown="if(event.key==='Enter')addCourseName()">
-        <button onclick="addCourseName()">＋ 新增</button>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.6">
+        課程分為三個等級，顏色分別不同。學生預約時可從清單選擇想上的課。
       </div>
-      <div class="hint">＊ 刪除課程類型不會影響已建立的預約紀錄</div>
+      <!-- 初級（綠色） -->
+      <div class="section-hdr" style="color:#2d6a2d;border-bottom-color:#b7dfb7">🟢 初級課程</div>
+      <div class="names-wrap" id="names-wrap-beginner"></div>
+      <div class="add-name-row" id="add-row-beginner">
+        <input type="text" id="new-name-beginner" placeholder="新增初級課程，例：基礎瑜珈" onkeydown="if(event.key==='Enter')addCourseName('beginner')">
+        <button onclick="addCourseName('beginner')" style="background:#2d6a2d">＋ 新增</button>
+      </div>
+      <!-- 進階（橘色） -->
+      <div class="section-hdr" style="color:#8a4000;border-bottom-color:#f0c090;margin-top:16px">🟠 進階課程</div>
+      <div class="names-wrap" id="names-wrap-advanced"></div>
+      <div class="add-name-row" id="add-row-advanced">
+        <input type="text" id="new-name-advanced" placeholder="新增進階課程，例：進階瑜珈" onkeydown="if(event.key==='Enter')addCourseName('advanced')">
+        <button onclick="addCourseName('advanced')" style="background:#b35400">＋ 新增</button>
+      </div>
+      <!-- 器具（紫色） -->
+      <div class="section-hdr" style="color:#5a1a8a;border-bottom-color:#d4b0f0;margin-top:16px">🟣 器具課程</div>
+      <div class="names-wrap" id="names-wrap-equipment"></div>
+      <div class="add-name-row" id="add-row-equipment">
+        <input type="text" id="new-name-equipment" placeholder="新增器具課程，例：空中瑜珈" onkeydown="if(event.key==='Enter')addCourseName('equipment')">
+        <button onclick="addCourseName('equipment')" style="background:#6a1fa0">＋ 新增</button>
+      </div>
+      <div class="hint" style="margin-top:12px">＊ 刪除課程類型不會影響已建立的預約紀錄</div>
       <div id="names-msg"></div>
     </div>
   </div>
@@ -364,15 +344,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
       <!-- 左：新增表單 -->
       <div class="acard" style="margin-bottom:0">
         <h3>➕ 新增開放時段</h3>
+
+        <!-- 快速複製現有時段 -->
+        <div class="fg" style="background:var(--sgl);padding:10px;border-radius:var(--radius);border:1px solid var(--sg);margin-bottom:14px">
+          <label style="color:var(--sgd);font-weight:600">📋 快速複製現有時段資料</label>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+            <select id="copy-slot-select" onchange="copySlotData(this.value)" style="flex:1">
+              <option value="">-- 選擇要複製的時段 --</option>
+            </select>
+          </div>
+          <div style="font-size:11px;color:var(--sgd);margin-top:5px">選擇後自動帶入人數與老師資訊，日期時間需自行填寫</div>
+        </div>
+
         <div class="ig2">
           <div class="fg"><label>上課日期 ＊</label><input type="date" id="nc-date"></div>
           <div class="fg"><label>上課時間 ＊</label><input type="time" id="nc-time"></div>
         </div>
         <div class="fg"><label>人數上限 ＊</label><input type="number" id="nc-cap" min="1" max="50" value="4"></div>
-        <div style="border-top:1px solid var(--bd);padding-top:12px;margin-top:4px">
+
+        <!-- 週期設定 -->
+        <div class="fg" style="background:var(--bg2);padding:10px;border-radius:var(--radius);border:1px dashed var(--wm3)">
+          <label style="color:var(--sgd);font-weight:600">🔁 批次建立（設定上課週期）</label>
+          <div style="font-size:11px;color:var(--t2);margin:4px 0 8px">勾選後可一次建立多週同一時段</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <input type="checkbox" id="nc-repeat" style="width:auto;accent-color:var(--sgd)" onchange="toggleRepeat()">
+            <label for="nc-repeat" style="font-size:13px;cursor:pointer;font-weight:400;color:var(--t1)">啟用週期批次建立</label>
+          </div>
+          <div id="repeat-options" style="display:none">
+            <div class="ig2" style="margin-bottom:0">
+              <div class="fg" style="margin-bottom:8px">
+                <label>重複方式</label>
+                <select id="nc-repeat-type">
+                  <option value="weekly">每週（固定星期幾）</option>
+                  <option value="biweekly">每兩週</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:8px">
+                <label>重複次數（含第一堂）</label>
+                <input type="number" id="nc-repeat-count" min="2" max="52" value="4" placeholder="例：4 表示建立 4 堂">
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--sgd);background:var(--sgl);padding:6px 10px;border-radius:4px" id="repeat-preview"></div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--bd);padding-top:12px;margin-top:12px">
           <div class="section-hdr">負責老師</div>
           <div class="fg" style="background:var(--bg2);padding:10px;border-radius:var(--radius);border:1px dashed var(--wm3);margin-bottom:12px">
-            <label style="color:var(--sgd);font-weight:600">📋 快速代入已存老師資料</label>
+            <label style="color:var(--sgd);font-weight:600">👤 快速代入已存老師資料</label>
             <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
               <select id="teacher-select" onchange="selectTeacher(this.value)" style="flex:1">
                 <option value="">-- 請選擇老師 --</option>
@@ -847,11 +866,25 @@ function startPublicListeners(){
   unsubSlots=onSnapshot(query(colSlots,orderBy("date")),snap=>{
     slots=snap.docs.map(d=>({id:d.id,...d.data()}));
     refreshCals();renderAddCal();
+    updateCopySlotSelect();
     if(document.getElementById('av-cs').classList.contains('active')) renderCS();
+    if(document.getElementById('av-ov').classList.contains('active')) renderOv();
   });
   unsubSettings=onSnapshot(doc(db,"settings","courseNames"),snap=>{
-    if(snap.exists()) courseNames=snap.data().list||[];
-    else{const d=['基礎瑜珈','進階瑜珈','低空瑜珈','空中瑜珈','瑜珈輪','紓壓放鬆瑜珈'];setDoc(doc(db,"settings","courseNames"),{list:d});courseNames=d;}
+    if(snap.exists()){
+      const d=snap.data();
+      if(d.beginner!==undefined||d.advanced!==undefined||d.equipment!==undefined){
+        courseNames={beginner:d.beginner||[],advanced:d.advanced||[],equipment:d.equipment||[]};
+      } else if(d.list){
+        courseNames={beginner:d.list||[],advanced:[],equipment:[]};
+      } else {
+        courseNames={beginner:[],advanced:[],equipment:[]};
+      }
+    } else {
+      const defaults={beginner:['基礎瑜珈','初階流動'],advanced:['進階瑜珈','熱瑜珈'],equipment:['低空瑜珈','空中瑜珈','瑜珈輪']};
+      setDoc(doc(db,"settings","courseNames"),defaults);
+      courseNames=defaults;
+    }
     if(document.getElementById('av-names').classList.contains('active')) renderNames();
   });
 }
@@ -922,35 +955,72 @@ window.aTab=function(n){
   if(n==='teachers') renderTeacherAccounts();
 };
 
-// ── 課程類型 ──
-function renderNames(){
-  const w=document.getElementById('names-wrap');w.innerHTML='';
-  if(!courseNames.length){w.innerHTML='<div style="font-size:13px;color:var(--t2)">尚無課程類型，請新增。</div>';return;}
-  courseNames.forEach(nm=>{
-    const t=document.createElement('div');t.className='name-tag';
-    const delBtn=can('names','delete')?`<button onclick="window.delName('${nm}')">✕</button>`:'';
-    t.innerHTML=`${nm}${delBtn}`;
-    w.appendChild(t);
-  });
-  // 新增列：有 create 權限才顯示
-  const addRow=document.querySelector('.add-name-row');
-  if(addRow) addRow.style.display=can('names','create')?'flex':'none';
+// ══ 課程分類顏色對照 ══
+const CAT_COLORS={
+  beginner:{bg:'#e8f5e8',color:'#2d6a2d',border:'#4a9a4a',label:'初級'},
+  advanced:{bg:'#fff3e0',color:'#8a4000',border:'#e07000',label:'進階'},
+  equipment:{bg:'#f3e8ff',color:'#5a1a8a',border:'#9940cc',label:'器具'},
+};
+function getCatByName(name){
+  const cn=courseNames;
+  if(cn.beginner&&cn.beginner.includes(name)) return 'beginner';
+  if(cn.advanced&&cn.advanced.includes(name)) return 'advanced';
+  if(cn.equipment&&cn.equipment.includes(name)) return 'equipment';
+  return 'beginner'; // 舊資料 fallback
 }
-window.addCourseName=async function(){
+function getSlotColor(s){
+  if(!s.name) return null; // open
+  return CAT_COLORS[getCatByName(s.name)]||CAT_COLORS.beginner;
+}
+function getAllCourseNames(){
+  if(!courseNames||typeof courseNames!=='object') return [];
+  return [...(courseNames.beginner||[]),...(courseNames.advanced||[]),...(courseNames.equipment||[])];
+}
+
+// ── 課程類型渲染 ──
+function renderNames(){
+  ['beginner','advanced','equipment'].forEach(cat=>{
+    const w=document.getElementById('names-wrap-'+cat);
+    if(!w) return;
+    w.innerHTML='';
+    const list=(courseNames&&courseNames[cat])||[];
+    if(!list.length){
+      w.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:4px 0">尚無課程，請新增。</div>`;
+    } else {
+      list.forEach(nm=>{
+        const col=CAT_COLORS[cat];
+        const t=document.createElement('div');t.className='name-tag';
+        t.style.cssText=`background:${col.bg};color:${col.color};border-color:${col.border}`;
+        const delBtn=can('names','delete')?`<button onclick="window.delName('${cat}','${nm}')" style="color:${col.color}">✕</button>`:'';
+        t.innerHTML=`${nm}${delBtn}`;
+        w.appendChild(t);
+      });
+    }
+    // 新增列權限控制
+    const row=document.getElementById('add-row-'+cat);
+    if(row) row.style.display=can('names','create')?'flex':'none';
+  });
+}
+window.addCourseName=async function(cat){
   if(!can('names','create')){alert('您沒有新增課程類型的權限');return;}
-  const v=document.getElementById('new-name-input').value.trim();
+  const inp=document.getElementById('new-name-'+cat);
+  const v=inp.value.trim();
   const msg=document.getElementById('names-msg');
   if(!v){msg.className='msg-err';msg.textContent='請輸入課程名稱';return;}
-  if(courseNames.includes(v)){msg.className='msg-err';msg.textContent=`「${v}」已存在`;return;}
-  await setDoc(doc(db,"settings","courseNames"),{list:[...courseNames,v]});
-  document.getElementById('new-name-input').value='';
+  const all=getAllCourseNames();
+  if(all.includes(v)){msg.className='msg-err';msg.textContent=`「${v}」已存在`;return;}
+  const cur=(courseNames&&courseNames[cat])||[];
+  const updated={...courseNames,[cat]:[...cur,v]};
+  await setDoc(doc(db,"settings","courseNames"),updated);
+  inp.value='';
   msg.className='msg-ok';msg.textContent=`✓ 已新增「${v}」`;
   setTimeout(()=>{msg.textContent='';},2500);
 };
-window.delName=async function(nm){
+window.delName=async function(cat,nm){
   if(!can('names','delete')){alert('您沒有刪除課程類型的權限');return;}
   if(!confirm(`確定要刪除課程類型「${nm}」嗎？`)) return;
-  await setDoc(doc(db,"settings","courseNames"),{list:courseNames.filter(x=>x!==nm)});
+  const updated={...courseNames,[cat]:(courseNames[cat]||[]).filter(x=>x!==nm)};
+  await setDoc(doc(db,"settings","courseNames"),updated);
 };
 
 // ── 老師快速選單 ──
@@ -974,6 +1044,63 @@ window.deleteTeacherRecord=async function(){
 };
 
 // ── 新增時段 ──
+// ── 複製現有時段資料 ──
+window.copySlotData=function(idx){
+  if(idx==='') return;
+  const s=slots[parseInt(idx)];if(!s) return;
+  document.getElementById('nc-cap').value=s.cap||4;
+  document.getElementById('nc-teacher').value=s.teacher||'';
+  document.getElementById('nc-email').value=s.email||'';
+  document.getElementById('nc-time').value=s.time||'';
+  // 更新老師下拉
+  const sel=document.getElementById('teacher-select');
+  if(sel){
+    for(let i=0;i<sel.options.length;i++){
+      if(sel.options[i].text.includes(s.teacher||'')){ sel.selectedIndex=i; break; }
+    }
+  }
+};
+function updateCopySlotSelect(){
+  const sel=document.getElementById('copy-slot-select');
+  if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML='<option value="">-- 選擇要複製的時段 --</option>';
+  slots.forEach((s,i)=>{
+    const o=document.createElement('option');
+    o.value=i;
+    o.textContent=`${s.date} ${s.time} · ${s.teacher||'—'} · ${s.cap}人`;
+    sel.appendChild(o);
+  });
+}
+
+// ── 週期批次控制 ──
+window.toggleRepeat=function(){
+  const on=document.getElementById('nc-repeat').checked;
+  document.getElementById('repeat-options').style.display=on?'block':'none';
+  if(on) updateRepeatPreview();
+};
+window.updateRepeatPreview=function(){
+  const dateVal=document.getElementById('nc-date').value;
+  const countVal=parseInt(document.getElementById('nc-repeat-count').value)||4;
+  const type=document.getElementById('nc-repeat-type').value;
+  const prev=document.getElementById('repeat-preview');
+  if(!dateVal){prev.textContent='請先填寫起始日期';return;}
+  const dates=[];
+  const base=new Date(dateVal);
+  const step=type==='biweekly'?14:7;
+  for(let i=0;i<countVal;i++){
+    const d=new Date(base);d.setDate(d.getDate()+i*step);
+    dates.push(dStr(d));
+  }
+  prev.textContent=`📅 將建立 ${countVal} 堂：${dates.join('、')}`;
+};
+// 日期變更時更新預覽
+document.addEventListener('change',function(e){
+  if(['nc-date','nc-repeat-count','nc-repeat-type'].includes(e.target.id)){
+    if(document.getElementById('nc-repeat')?.checked) updateRepeatPreview();
+  }
+});
+
 window.addSlot=async function(){
   if(!can('add','create')){alert('您沒有新增時段的權限');return;}
   const date=document.getElementById('nc-date').value;
@@ -986,15 +1113,35 @@ window.addSlot=async function(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg-err';msg.textContent='Email 格式不正確';return;}
   const btn=document.getElementById('add-slot-btn');btn.disabled=true;btn.textContent='儲存中…';
   try{
-    await addDoc(colSlots,{name:'',date,time,cap,booked:0,teacher,email});
+    const isRepeat=document.getElementById('nc-repeat')?.checked;
+    let datesToCreate=[date];
+    if(isRepeat){
+      const countVal=parseInt(document.getElementById('nc-repeat-count').value)||4;
+      const repeatType=document.getElementById('nc-repeat-type').value;
+      const step=repeatType==='biweekly'?14:7;
+      datesToCreate=[];
+      const base=new Date(date);
+      for(let i=0;i<countVal;i++){
+        const d=new Date(base);d.setDate(d.getDate()+i*step);
+        datesToCreate.push(dStr(d));
+      }
+    }
+    for(const dd of datesToCreate){
+      await addDoc(colSlots,{name:'',date:dd,time,cap,booked:0,teacher,email});
+    }
     const exists=teachers.some(t=>t.name===teacher&&t.email===email);
     if(!exists) await setDoc(doc(db,"settings","teachers"),{list:[...teachers,{name:teacher,email}]});
-    msg.className='';msg.innerHTML=`<div class="sbox">✓ 時段已新增！${date} ${time} · ${teacher}</div>`;
+    msg.className='';
+    const countMsg=datesToCreate.length>1?` 共建立 ${datesToCreate.length} 堂`:'';
+    msg.innerHTML=`<div class="sbox">✓ 時段已新增${countMsg}！${time} · ${teacher}</div>`;
     document.getElementById('nc-date').value='';document.getElementById('nc-time').value='';
     document.getElementById('nc-cap').value='4';document.getElementById('nc-teacher').value='';
     document.getElementById('nc-email').value='';
+    if(document.getElementById('nc-repeat')) document.getElementById('nc-repeat').checked=false;
+    if(document.getElementById('repeat-options')) document.getElementById('repeat-options').style.display='none';
     if(document.getElementById('teacher-select')) document.getElementById('teacher-select').value='';
-    setTimeout(()=>{msg.innerHTML='';},3500);
+    if(document.getElementById('copy-slot-select')) document.getElementById('copy-slot-select').value='';
+    setTimeout(()=>{msg.innerHTML='';},4000);
     renderAddCal();
   }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;}
   btn.disabled=false;btn.textContent='新增時段';
@@ -1118,7 +1265,7 @@ window.openEditSlot=function(id){
   const s=slots.find(x=>x.id===id);if(!s) return;
   document.getElementById('mo-title').textContent='編輯時段';
   document.getElementById('mo-meta').innerHTML=`<span class="crow-dt">📅 ${s.date} &nbsp; 🕐 ${s.time}</span>`;
-  const nameOpts=courseNames.map(n=>`<option${n===s.name?' selected':''}>${n}</option>`).join('');
+  const nameOpts=getAllCourseNames().map(n=>`<option${n===s.name?' selected':''}>${n}</option>`).join('');
   document.getElementById('mo-body').innerHTML=
     `<div class="fg"><label>課程名稱（可清空讓學生選）</label><select id="ec-n"><option value="">可預約課程（未定）</option>${nameOpts}</select></div>`+
     `<div class="ig2"><div class="fg"><label>日期</label><input type="date" id="ec-d" value="${s.date}"></div><div class="fg"><label>時間</label><input type="time" id="ec-t" value="${s.time}"></div></div>`+
@@ -1165,7 +1312,7 @@ window.openEditBk=function(bid){
   const b=bookings.find(x=>x.id===bid);if(!b) return;
   document.getElementById('mo-title').textContent='編輯預約紀錄';
   document.getElementById('mo-meta').textContent=`預約 ID: ${bid}`;
-  const opts=courseNames.map(n=>`<option${n===b.courseName?' selected':''}>${n}</option>`).join('');
+  const opts=getAllCourseNames().map(n=>`<option${n===b.courseName?' selected':''}>${n}</option>`).join('');
   document.getElementById('mo-body').innerHTML=
     `<div class="fg"><label>學生姓名</label><input type="text" id="ebk-n" value="${b.name}"></div>`+
     `<div class="fg"><label>手機號碼</label><input type="tel" id="ebk-p" value="${b.phone}" maxlength="10"></div>`+
@@ -1227,10 +1374,12 @@ window.openEditStudent=function(sid){
   const s=students.find(x=>x.id===sid);if(!s) return;
   document.getElementById('mo-title').textContent='設定學生帳號';
   document.getElementById('mo-meta').innerHTML=`<strong>${s.name}</strong> &nbsp; ${s.email}`;
-  const courseCheckboxes=courseNames.map(n=>{
+  const courseCheckboxes=getAllCourseNames().map(n=>{
+    const cat=getCatByName(n);const col=CAT_COLORS[cat];
     const checked=s.allowedCourses&&s.allowedCourses.includes(n)?'checked':'';
     return `<label style="display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:6px;cursor:pointer">
-      <input type="checkbox" value="${n}" ${checked} style="width:auto;accent-color:var(--sgd)"> ${n}
+      <input type="checkbox" value="${n}" ${checked} style="width:auto;accent-color:${col.border}">
+      <span style="background:${col.bg};color:${col.color};padding:1px 7px;border-radius:3px;font-size:12px">${n}</span>
     </label>`;
   }).join('');
   document.getElementById('mo-body').innerHTML=
@@ -1435,7 +1584,14 @@ function renderMonth(){
     const nd=document.createElement('div');nd.className='dn';nd.textContent=d;el.appendChild(nd);
     slots.filter(s=>s.date===ds).sort((a,b)=>a.time.localeCompare(b.time)).forEach(s=>{
       const f=s.booked>=s.cap;const isOpen=!s.name;
-      const p=document.createElement('div');p.className='ep'+(isOpen?' open':f?' full':'');
+      const p=document.createElement('div');
+      if(isOpen) p.className='ep open';
+      else if(f) p.className='ep full';
+      else{
+        const col=getSlotColor(s);
+        p.className='ep';
+        if(col) p.style.cssText=`background:${col.bg};color:${col.color};border-left-color:${col.border}`;
+      }
       p.textContent=s.time+' '+(isOpen?'可預約課程':s.name);
       p.title=isOpen?`${s.time} 可預約課程（${s.teacher}）`:`${s.name} (${s.teacher})`;
       p.onclick=()=>openBook(s);el.appendChild(p);
@@ -1461,7 +1617,14 @@ function renderWeek(){
       const cell=document.createElement('div');cell.className='wc';
       slots.filter(s=>s.date===ds&&s.time===hr).forEach(s=>{
         const f=s.booked>=s.cap;const isOpen=!s.name;
-        const ev=document.createElement('div');ev.className='we'+(isOpen?' open':f?' full':'');
+        const ev=document.createElement('div');
+        if(isOpen) ev.className='we open';
+        else if(f) ev.className='we full';
+        else{
+          ev.className='we';
+          const col=getSlotColor(s);
+          if(col) ev.style.cssText=`background:${col.bg};color:${col.color};border-left-color:${col.border}`;
+        }
         ev.textContent=isOpen?'可預約課程':s.name;ev.title=isOpen?`可預約課程（${s.teacher}）`:`${s.name}`;
         ev.onclick=()=>openBook(s);cell.appendChild(ev);
       });
@@ -1483,7 +1646,21 @@ function openBook(s){
   if(full){
     document.getElementById('mo-body').innerHTML=`<div style="text-align:center;padding:2rem 0;color:var(--t2)"><div style="font-size:36px;margin-bottom:10px">🚫</div><div style="font-size:15px;font-weight:600;color:#a32d2d">此課程名額已滿</div><div style="font-size:13px;margin-top:6px">請回行事曆選擇其他時段</div><button class="btn-g" style="margin-top:16px" onclick="closeMo()">關閉</button></div>`;
   } else {
-    const courseOpts=isOpen?courseNames.map(n=>`<option value="${n}">${n}</option>`).join(''):`<option value="${s.name}" selected>${s.name}</option>`;
+    // 學生選課下拉：依分類分組顯示顏色
+    let courseOpts='';
+    if(isOpen){
+      const cats=[['beginner','🟢 初級'],['advanced','🟠 進階'],['equipment','🟣 器具']];
+      cats.forEach(([cat,label])=>{
+        const list=(courseNames&&courseNames[cat])||[];
+        if(list.length){
+          courseOpts+=`<optgroup label="${label}">`;
+          list.forEach(n=>{courseOpts+=`<option value="${n}">${n}</option>`;});
+          courseOpts+=`</optgroup>`;
+        }
+      });
+    } else {
+      courseOpts=`<option value="${s.name}" selected>${s.name}</option>`;
+    }
     document.getElementById('mo-body').innerHTML=
       `<div class="fg"><label>您的姓名 ＊</label><input type="text" id="bk-n" placeholder="請輸入姓名"></div>`+
       `<div class="fg"><label>${isOpen?'請選擇課程 ＊（你是第一位，請選擇想上的課）':'課程名稱'}</label><select id="bk-course" ${!isOpen?'disabled':''}>${courseOpts}</select></div>`+
