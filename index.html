@@ -172,6 +172,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
   .sgrid{grid-template-columns:repeat(3,1fr)}
   .ig2{grid-template-columns:1fr}
 }
+/* 課程分類顏色 */
+.cat-open{background:var(--bg2);color:var(--t2);border-left:2px dashed var(--wm3);font-style:italic}
 </style>
 </head>
 <body>
@@ -192,81 +194,41 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
 
   <!-- 教師登入 / 註冊 -->
   <div id="login-admin-form">
-    <!-- 子分頁：登入 / 申請帳號 -->
-    <div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem">
-      <button id="tltab-login" onclick="switchTeacherTab('login')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">登入</button>
-      <button id="tltab-reg" onclick="switchTeacherTab('reg')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:500">申請教師帳號</button>
+    <div class="fg"><label>Email</label><input type="email" id="lu" placeholder="your@email.com" autocomplete="username"></div>
+    <div class="fg"><label>密碼</label>
+      <div class="pw-wrap">
+        <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="pw-toggle" onclick="togglePw('lp')">👁</button>
+      </div>
     </div>
-    <!-- 教師登入表單 -->
-    <div id="teacher-login-section">
-      <div class="fg"><label>Email</label><input type="email" id="lu" placeholder="your@email.com" autocomplete="username"></div>
-      <div class="fg"><label>密碼</label>
-        <div class="pw-wrap">
-          <input type="password" id="lp" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
-          <button class="pw-toggle" onclick="togglePw('lp')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="login-btn" onclick="doLogin()">🔐 登入後台</button>
-      <div id="lerr" class="err-msg"></div>
-    </div>
-    <!-- 教師申請帳號表單（需主管理者審核）-->
-    <div id="teacher-reg-section" style="display:none">
-      <div style="background:var(--sgl);border:1px solid var(--sg);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--sgd);margin-bottom:12px;line-height:1.6">
-        📋 申請送出後，需由<strong>主管理者審核</strong>才能使用後台功能。審核通過後你會收到 Email 通知。
-      </div>
-      <div class="fg"><label>姓名 ＊</label><input type="text" id="treg-name" placeholder="請輸入真實姓名"></div>
-      <div class="fg"><label>Email ＊</label><input type="email" id="treg-email" placeholder="your@email.com"></div>
-      <div class="fg"><label>手機 ＊</label><input type="tel" id="treg-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
-      <div class="fg"><label>密碼 ＊（至少 6 碼）</label>
-        <div class="pw-wrap">
-          <input type="password" id="treg-pw" placeholder="••••••••">
-          <button class="pw-toggle" onclick="togglePw('treg-pw')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="treg-btn" onclick="doTeacherRegister()">📩 送出申請</button>
-      <div id="treg-msg" class="err-msg"></div>
+    <button class="btn-p" id="login-btn" onclick="doLogin()">🔐 登入後台</button>
+    <div id="lerr" class="err-msg"></div>
+    <div style="margin-top:12px;padding:10px 12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--t2);text-align:center;line-height:1.6">
+      教師帳號由管理者建立，如需帳號請聯絡管理者。
     </div>
   </div>
 
-  <!-- 學生登入 / 註冊 -->
+  <!-- 學生登入 -->
   <div id="login-student-form" style="display:none">
-    <!-- 子分頁切換 -->
-    <div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem">
-      <button id="sltab-login" onclick="switchStuTab('login')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">登入</button>
-      <button id="sltab-reg" onclick="switchStuTab('reg')"
-        style="flex:1;padding:8px;font-size:13px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit;font-weight:500">註冊新帳號</button>
+    <div class="fg">
+      <label>姓名 / 暱稱</label>
+      <input type="text" id="slu-name" placeholder="請輸入姓名或暱稱" autocomplete="name">
     </div>
-    <!-- 學生登入表單 -->
-    <div id="stu-login-section">
-      <div class="fg"><label>手機號碼</label><input type="tel" id="slu-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
-      <div class="fg"><label>密碼</label>
-        <div class="pw-wrap">
-          <input type="password" id="slu-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doStuLogin()">
-          <button class="pw-toggle" onclick="togglePw('slu-pw')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="slu-btn" onclick="doStuLogin()">🧘 學生登入</button>
-      <div id="slu-err" class="err-msg"></div>
-      <div style="text-align:center;margin-top:10px">
-        <button class="btn-g" style="font-size:12px;width:100%" onclick="goStu()">📅 不登入，直接前往預約行事曆</button>
-      </div>
+    <div class="fg">
+      <label>手機號碼</label>
+      <input type="tel" id="slu-phone" placeholder="09xxxxxxxx" maxlength="10" onkeydown="if(event.key==='Enter')doStuLogin()">
     </div>
-    <!-- 學生註冊表單 -->
-    <div id="stu-reg-section" style="display:none">
-      <div class="fg"><label>姓名 ＊</label><input type="text" id="reg-name" placeholder="請輸入真實姓名"></div>
-      <div class="fg"><label>Email ＊</label><input type="email" id="reg-email" placeholder="your@email.com"></div>
-      <div class="fg"><label>手機 ＊</label><input type="tel" id="reg-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
-      <div class="fg"><label>密碼 ＊（至少 6 碼）</label>
-        <div class="pw-wrap">
-          <input type="password" id="reg-pw" placeholder="••••••••">
-          <button class="pw-toggle" onclick="togglePw('reg-pw')">👁</button>
-        </div>
-      </div>
-      <button class="btn-p" id="reg-btn" onclick="doRegister()">✅ 註冊學生帳號</button>
-      <div id="reg-msg" class="err-msg"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <input type="checkbox" id="slu-remember" style="width:auto;accent-color:var(--sgd)">
+      <label for="slu-remember" style="font-size:12px;color:var(--t2);cursor:pointer;font-weight:400">記住我（下次自動填入）</label>
+    </div>
+    <button class="btn-p" id="slu-btn" onclick="doStuLogin()">🧘 學生登入</button>
+    <div id="slu-err" class="err-msg"></div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="btn-g" style="font-size:12px;width:100%" onclick="goStu()">📅 不登入，直接瀏覽行事曆</button>
+    </div>
+    <div style="margin-top:10px;padding:10px 12px;background:var(--bg2);border-radius:var(--radius);font-size:12px;color:var(--t2);line-height:1.6;text-align:center">
+      學生帳號由管理者建立，如需帳號請聯絡教室。
     </div>
   </div>
 </div>
@@ -340,19 +302,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
     <button class="tb" id="atab-bk" onclick="aTab('bk')">👥 預約紀錄</button>
     <button class="tb" id="atab-stu" onclick="aTab('stu')">🧘 學生帳號</button>
     <button class="tb" id="atab-teachers" onclick="aTab('teachers')" style="display:none">👩‍🏫 教師帳號</button>
+    <button class="tb" id="atab-my-schedule" onclick="aTab('my-schedule')" style="display:none">📋 我的課程預約</button>
   </div>
   <div class="view active" id="av-ov"></div>
   <div class="view" id="av-names">
     <div class="acard">
       <h3>🏷 課程類型管理</h3>
-      <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.6">在這裡設定可供學生選擇的課程類型。學生預約時會從這個清單中選擇想上的課。</div>
-      <div class="section-hdr">目前課程類型</div>
-      <div class="names-wrap" id="names-wrap"></div>
-      <div class="add-name-row">
-        <input type="text" id="new-name-input" placeholder="輸入新課程類型，例：熱瑜珈" onkeydown="if(event.key==='Enter')addCourseName()">
-        <button onclick="addCourseName()">＋ 新增</button>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:14px;line-height:1.6">課程分為三個等級，顏色各不同。學生預約時可從分類清單選擇想上的課。</div>
+      <div class="section-hdr" style="color:#2d6a2d;border-bottom-color:#b7dfb7">🟢 初級課程</div>
+      <div class="names-wrap" id="names-wrap-beginner"></div>
+      <div class="add-name-row" id="add-row-beginner">
+        <input type="text" id="new-name-beginner" placeholder="新增初級課程，例：基礎瑜珈" onkeydown="if(event.key==='Enter')addCourseName('beginner')">
+        <button onclick="addCourseName('beginner')" style="background:#2d6a2d">＋ 新增</button>
       </div>
-      <div class="hint">＊ 刪除課程類型不會影響已建立的預約紀錄</div>
+      <div class="section-hdr" style="color:#8a4000;border-bottom-color:#f0c090;margin-top:16px">🟠 進階課程</div>
+      <div class="names-wrap" id="names-wrap-advanced"></div>
+      <div class="add-name-row" id="add-row-advanced">
+        <input type="text" id="new-name-advanced" placeholder="新增進階課程，例：進階瑜珈" onkeydown="if(event.key==='Enter')addCourseName('advanced')">
+        <button onclick="addCourseName('advanced')" style="background:#b35400">＋ 新增</button>
+      </div>
+      <div class="section-hdr" style="color:#5a1a8a;border-bottom-color:#d4b0f0;margin-top:16px">🟣 器具課程</div>
+      <div class="names-wrap" id="names-wrap-equipment"></div>
+      <div class="add-name-row" id="add-row-equipment">
+        <input type="text" id="new-name-equipment" placeholder="新增器具課程，例：空中瑜珈" onkeydown="if(event.key==='Enter')addCourseName('equipment')">
+        <button onclick="addCourseName('equipment')" style="background:#6a1fa0">＋ 新增</button>
+      </div>
+      <div class="hint" style="margin-top:12px">＊ 刪除課程類型不會影響已建立的預約紀錄</div>
       <div id="names-msg"></div>
     </div>
   </div>
@@ -364,15 +339,43 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
       <!-- 左：新增表單 -->
       <div class="acard" style="margin-bottom:0">
         <h3>➕ 新增開放時段</h3>
+
         <div class="ig2">
-          <div class="fg"><label>上課日期 ＊</label><input type="date" id="nc-date"></div>
+          <div class="fg"><label>上課日期 ＊</label><input type="date" id="nc-date" onchange="updateRepeatPreview()"></div>
           <div class="fg"><label>上課時間 ＊</label><input type="time" id="nc-time"></div>
         </div>
         <div class="fg"><label>人數上限 ＊</label><input type="number" id="nc-cap" min="1" max="50" value="4"></div>
-        <div style="border-top:1px solid var(--bd);padding-top:12px;margin-top:4px">
+
+        <!-- 週期批次 -->
+        <div class="fg" style="background:var(--bg2);padding:10px;border-radius:var(--radius);border:1px dashed var(--wm3)">
+          <label style="color:var(--sgd);font-weight:600">🔁 批次建立（設定上課週期）</label>
+          <div style="font-size:11px;color:var(--t2);margin:4px 0 8px">勾選後可一次建立多週同一時段</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+            <input type="checkbox" id="nc-repeat" style="width:auto;accent-color:var(--sgd)" onchange="toggleRepeat()">
+            <label for="nc-repeat" style="font-size:13px;cursor:pointer;font-weight:400;color:var(--t1)">啟用週期批次建立</label>
+          </div>
+          <div id="repeat-options" style="display:none">
+            <div class="ig2" style="margin-bottom:0">
+              <div class="fg" style="margin-bottom:8px">
+                <label>重複方式</label>
+                <select id="nc-repeat-type" onchange="updateRepeatPreview()">
+                  <option value="weekly">每週</option>
+                  <option value="biweekly">每兩週</option>
+                </select>
+              </div>
+              <div class="fg" style="margin-bottom:8px">
+                <label>重複次數（含第一堂）</label>
+                <input type="number" id="nc-repeat-count" min="2" max="52" value="4" oninput="updateRepeatPreview()">
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--sgd);background:var(--sgl);padding:6px 10px;border-radius:4px" id="repeat-preview">請先填寫起始日期</div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid var(--bd);padding-top:12px;margin-top:12px">
           <div class="section-hdr">負責老師</div>
           <div class="fg" style="background:var(--bg2);padding:10px;border-radius:var(--radius);border:1px dashed var(--wm3);margin-bottom:12px">
-            <label style="color:var(--sgd);font-weight:600">📋 快速代入已存老師資料</label>
+            <label style="color:var(--sgd);font-weight:600">👤 快速代入已存老師資料</label>
             <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
               <select id="teacher-select" onchange="selectTeacher(this.value)" style="flex:1">
                 <option value="">-- 請選擇老師 --</option>
@@ -387,7 +390,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
         <div id="add-msg" style="margin-top:8px"></div>
       </div>
 
-      <!-- 右：內嵌行事曆預覽 -->
+      <!-- 右：行事曆預覽 -->
       <div class="acard" style="margin-bottom:0">
         <h3>📅 時段預覽行事曆</h3>
         <div class="add-cal-tabs">
@@ -410,10 +413,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
           </div>
           <div class="wscroll"><div class="mini-wg" id="add-wgrid"></div></div>
         </div>
-        <div style="display:flex;gap:12px;margin-top:8px;font-size:10px;color:var(--t2);flex-wrap:wrap">
+        <div style="display:flex;gap:10px;margin-top:8px;font-size:10px;color:var(--t2);flex-wrap:wrap">
           <span><span style="display:inline-block;width:8px;height:8px;background:var(--bg2);border-left:2px dashed var(--wm3);border-radius:1px;margin-right:3px;vertical-align:middle"></span>可預約</span>
-          <span><span style="display:inline-block;width:8px;height:8px;background:var(--sgl);border-left:2px solid var(--sg);border-radius:1px;margin-right:3px;vertical-align:middle"></span>已有課程</span>
-          <span><span style="display:inline-block;width:8px;height:8px;background:#fef2f2;border-left:2px solid #a32d2d;border-radius:1px;margin-right:3px;vertical-align:middle"></span>額滿</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#e8f5e8;border-left:2px solid #4a9a4a;border-radius:1px;margin-right:3px;vertical-align:middle"></span>初級</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#fff3e0;border-left:2px solid #e07000;border-radius:1px;margin-right:3px;vertical-align:middle"></span>進階</span>
+          <span><span style="display:inline-block;width:8px;height:8px;background:#f3e8ff;border-left:2px solid #9940cc;border-radius:1px;margin-right:3px;vertical-align:middle"></span>器具</span>
         </div>
       </div>
     </div>
@@ -423,6 +427,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Ar
   <div class="view" id="av-bk"></div>
   <div class="view" id="av-stu"></div>
   <div class="view" id="av-teachers"></div>
+  <div class="view" id="av-my-schedule"></div>
 </div>
 </div>
 
@@ -464,7 +469,7 @@ const colSlots    = collection(db,"slots");
 const colBookings = collection(db,"bookings");
 const colStudents = collection(db,"students");
 
-let slots=[],bookings=[],courseNames=[],teachers=[],students=[],teacherAccounts=[];
+let slots=[],bookings=[],courseNames={beginner:[],advanced:[],equipment:[]},teachers=[],students=[],teacherAccounts=[];
 let currentStudentId='',currentStudentName='';
 let currentRole=''; // 'superadmin' | 'teacher' | 'student' | ''
 let unsubSlots=null,unsubBookings=null,unsubSettings=null,unsubTeachers=null,unsubStudents=null,unsubTeacherAccounts=null;
@@ -494,15 +499,7 @@ window.switchLoginTab=function(t){
   document.getElementById('login-admin-form').style.display=t==='admin'?'block':'none';
   document.getElementById('login-student-form').style.display=t==='student'?'block':'none';
 };
-window.switchTeacherTab=function(tab){
-  const isLogin=(tab==='login');
-  document.getElementById('tltab-login').style.background=isLogin?'var(--sgd)':'transparent';
-  document.getElementById('tltab-login').style.color=isLogin?'#fff':'var(--t2)';
-  document.getElementById('tltab-reg').style.background=isLogin?'transparent':'var(--sgd)';
-  document.getElementById('tltab-reg').style.color=isLogin?'var(--t2)':'#fff';
-  document.getElementById('teacher-login-section').style.display=isLogin?'block':'none';
-  document.getElementById('teacher-reg-section').style.display=isLogin?'none':'block';
-};
+
 
 // ── 教師登入 ──
 window.doLogin=async function(){
@@ -521,35 +518,7 @@ window.doLogin=async function(){
 };
 
 // ── 教師申請帳號 ──
-window.doTeacherRegister=async function(){
-  const name=document.getElementById('treg-name').value.trim();
-  const email=document.getElementById('treg-email').value.trim();
-  const phone=document.getElementById('treg-phone').value.trim().replace(/-/g,'');
-  const pw=document.getElementById('treg-pw').value;
-  const msg=document.getElementById('treg-msg');
-  const btn=document.getElementById('treg-btn');
-  if(!name||!email||!phone||!pw){msg.className='msg-err';msg.textContent='請填寫所有欄位';return;}
-  if(!/^09\d{8}$/.test(phone)){msg.className='msg-err';msg.textContent='手機格式錯誤，請輸入 09xxxxxxxx';return;}
-  if(pw.length<6){msg.className='msg-err';msg.textContent='密碼至少 6 碼';return;}
-  btn.disabled=true;btn.textContent='送出中…';msg.textContent='';
-  try{
-    const cred=await createUserWithEmailAndPassword(auth,email,pw);
-    await setDoc(doc(db,'teacherAccounts',cred.user.uid),{
-      name,email,phone,
-      status:'pending',  // pending=待審核, approved=已核准, rejected=已拒絕
-      role:'teacher',
-      createdAt:nowTs()
-    });
-    await signOut(auth); // 申請後先登出，等待審核
-    msg.className='msg-ok';
-    msg.textContent='✅ 申請已送出！待主管理者審核後即可登入。';
-    btn.disabled=false;btn.textContent='📩 送出申請';
-  }catch(e){
-    const msgs={'auth/email-already-in-use':'此 Email 已被使用','auth/weak-password':'密碼強度不足','auth/invalid-email':'Email 格式錯誤'};
-    msg.className='msg-err';msg.textContent=msgs[e.code]||('申請失敗：'+e.message);
-    btn.disabled=false;btn.textContent='📩 送出申請';
-  }
-};
+
 
 // ── 學生登入頁子分頁切換 ──
 window.switchStuTab=function(tab){
@@ -570,49 +539,133 @@ window.goStuLoginPage=function(){
 };
 
 // ── 學生登入（用手機號碼查出 Email，再用 Firebase Auth 登入）──
+(function initStuRemember(){
+  try{
+    const saved=JSON.parse(localStorage.getItem('stu_remember')||'null');
+    if(saved&&saved.name&&saved.phone){
+      const nameEl=document.getElementById('slu-name');
+      const phoneEl=document.getElementById('slu-phone');
+      const remEl=document.getElementById('slu-remember');
+      if(nameEl) nameEl.value=saved.name;
+      if(phoneEl) phoneEl.value=saved.phone;
+      if(remEl) remEl.checked=true;
+    }
+  }catch(e){}
+})();
+
 window.doStuLogin=async function(){
-  const phone=(document.getElementById('slu-phone').value||'').trim().replace(/-/g,'');
-  const pw=document.getElementById('slu-pw').value;
+  const name=document.getElementById('slu-name').value.trim();
+  const phone=document.getElementById('slu-phone').value.trim().replace(/-/g,'');
+  const remember=document.getElementById('slu-remember')?.checked;
   const err=document.getElementById('slu-err');
   const btn=document.getElementById('slu-btn');
-  if(!phone||!pw){err.className='msg-err';err.textContent='請填寫手機號碼和密碼';return;}
+  if(!name||!phone){err.className='msg-err';err.textContent='請填寫姓名和手機號碼';return;}
   if(!/^09\d{8}$/.test(phone)){err.className='msg-err';err.textContent='手機格式錯誤，請輸入 09xxxxxxxx';return;}
   btn.disabled=true;btn.textContent='登入中…';err.textContent='';
   try{
-    // Step 1：查詢手機對應的 Email
-    const {getDocs,query:fsQuery,collection:fsCol,where}=await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
-    const q=fsQuery(fsCol(db,"students"),where("phone","==",phone));
-    const snap=await getDocs(q);
+    const snap=await getDocs(query(collection(db,"students"),where("phone","==",phone)));
     if(snap.empty){
-      err.className='msg-err';err.textContent='找不到此手機號碼的帳號，請先註冊';
+      err.className='msg-err';
+      err.textContent='找不到此手機號碼的帳號，請聯絡教室';
       btn.disabled=false;btn.textContent='🧘 學生登入';return;
     }
-    const stuData=snap.docs[0].data();
-    const stuId=snap.docs[0].id;
-    // Step 2：先設好 currentStudentId，讓 onAuthStateChanged 知道這是學生登入
-    currentStudentId=stuId;
-    currentStudentName=stuData.name||'';
+    const match=snap.docs.find(d=>{
+      const dd=d.data();
+      return (dd.name||'').trim()===name||(dd.nickname||'').trim()===name;
+    });
+    if(!match){
+      err.className='msg-err';
+      err.textContent='姓名或手機號碼不符，請確認後重試';
+      btn.disabled=false;btn.textContent='🧘 學生登入';return;
+    }
+    const stuData=match.data();
+    if(remember){try{localStorage.setItem('stu_remember',JSON.stringify({name,phone}));}catch(e){}}
+    else{try{localStorage.removeItem('stu_remember');}catch(e){}}
+    currentStudentId=match.id;
+    currentStudentName=stuData.name||name;
+    currentStudentData=stuData;
     currentRole='student';
-    // Step 3：Firebase Auth 登入
-    await signInWithEmailAndPassword(auth,stuData.email,pw);
-    // Step 4：更新 UI 並前往學生頁
-    isAdmin=false;
-    document.getElementById('stu-name-label').textContent='👋 '+(stuData.name||'');
+    document.getElementById('stu-name-label').textContent='👋 '+currentStudentName;
     document.getElementById('stu-student-login-btn').style.display='none';
     document.getElementById('stu-student-logout-btn').style.display='inline-block';
-    document.getElementById('stu-login-btn').style.display='inline-block';
+    const myBtn=document.getElementById('stu-my-account-btn');
+    if(myBtn) myBtn.style.display='inline-block';
     startPublicListeners();
     goStu();
   }catch(e){
-    // 登入失敗：清除預設的 currentStudentId
-    currentStudentId='';currentStudentName='';currentRole='';
-    const msgs={'auth/wrong-password':'密碼錯誤','auth/invalid-credential':'手機號碼或密碼錯誤','auth/too-many-requests':'嘗試次數過多，請稍後再試'};
-    err.className='msg-err';err.textContent=msgs[e.code]||('登入失敗：'+e.message);
+    console.error('doStuLogin error:',e.code, e.message);
+    if(e.code==='permission-denied'||e.message?.includes('permissions')){
+      err.className='msg-err';
+      err.innerHTML='⚠️ Firebase 規則未允許讀取學生資料<br><small>請至 Firebase Console → Firestore → Rules，加入：<br><code>match /students/{id} { allow read: if true; }</code></small>';
+    } else {
+      err.className='msg-err';err.textContent='登入失敗：'+e.message;
+    }
     btn.disabled=false;btn.textContent='🧘 學生登入';
   }
 };
 
 // ── 學生登出 ──
+window.openMyAccount=function(){
+  if(!currentStudentId||!currentStudentData) return;
+  const s=currentStudentData;
+  const qB=s.quotaBeginner||0,qA=s.quotaAdvanced||0,qE=s.quotaEquipment||0;
+  const uB=s.usedBeginner||0,uA=s.usedAdvanced||0,uE=s.usedEquipment||0;
+  document.getElementById('mo-title').textContent='我的帳號';
+  document.getElementById('mo-meta').innerHTML=`<span style="font-size:12px;color:var(--t2)">登入身份：${s.name||''} · 📱 ${s.phone||''}</span>`;
+  document.getElementById('mo-body').innerHTML=`
+    <div style="margin-bottom:14px">
+      <div class="section-hdr">📊 課程次數餘額</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div style="flex:1;min-width:80px;padding:10px;border-radius:var(--radius);background:#e8f5e8;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#2d6a2d">${qB-uB}</div>
+          <div style="font-size:11px;color:#2d6a2d">🟢 初級剩餘</div>
+          <div style="font-size:10px;color:#2d6a2d;margin-top:2px">已用 ${uB}/${qB}</div>
+        </div>
+        <div style="flex:1;min-width:80px;padding:10px;border-radius:var(--radius);background:#fff3e0;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#8a4000">${qA-uA}</div>
+          <div style="font-size:11px;color:#8a4000">🟠 進階剩餘</div>
+          <div style="font-size:10px;color:#8a4000;margin-top:2px">已用 ${uA}/${qA}</div>
+        </div>
+        <div style="flex:1;min-width:80px;padding:10px;border-radius:var(--radius);background:#f3e8ff;text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#5a1a8a">${qE-uE}</div>
+          <div style="font-size:11px;color:#5a1a8a">🟣 器具剩餘</div>
+          <div style="font-size:10px;color:#5a1a8a;margin-top:2px">已用 ${uE}/${qE}</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-hdr">✏️ 修改基本資料</div>
+    <div class="fg"><label>姓名 ＊</label><input type="text" id="my-name" value="${s.name||''}"></div>
+    <div class="fg"><label>暱稱</label><input type="text" id="my-nick" value="${s.nickname||''}" placeholder="選填"></div>
+    <div class="fg"><label>手機號碼 ＊</label><input type="tel" id="my-phone" value="${s.phone||''}" maxlength="10"></div>
+    <div class="fg"><label>職業</label><input type="text" id="my-job" value="${s.job||''}" placeholder="選填"></div>
+    <div class="fg"><label>Email</label><input type="email" id="my-email" value="${s.email||''}" placeholder="選填"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-g" onclick="closeMo()">取消</button>
+      <button class="btn-p" id="my-save-btn" onclick="window.saveMyAccount()" style="margin-top:0">儲存修改</button>
+    </div>
+    <div id="my-msg" class="err-msg"></div>`;
+  openMo();
+};
+window.saveMyAccount=async function(){
+  const name=document.getElementById('my-name').value.trim();
+  const phone=document.getElementById('my-phone').value.trim().replace(/-/g,'');
+  const msg=document.getElementById('my-msg');const btn=document.getElementById('my-save-btn');
+  if(!name){msg.className='msg-err';msg.textContent='姓名不可空白';return;}
+  if(!/^09\d{8}$/.test(phone)){msg.className='msg-err';msg.textContent='手機格式錯誤';return;}
+  btn.disabled=true;btn.textContent='儲存中…';
+  try{
+    const upd={name,nickname:document.getElementById('my-nick').value.trim(),
+      phone,job:document.getElementById('my-job').value.trim(),
+      email:document.getElementById('my-email').value.trim()};
+    await updateDoc(doc(db,"students",currentStudentId),upd);
+    currentStudentName=name;currentStudentData={...currentStudentData,...upd};
+    document.getElementById('stu-name-label').textContent='👋 '+name;
+    msg.className='msg-ok';msg.textContent='✅ 已儲存！';
+    btn.disabled=false;btn.textContent='儲存修改';
+    setTimeout(()=>closeMo(),1200);
+  }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;btn.disabled=false;btn.textContent='儲存修改';}
+};
+
 window.doStuLogout=async function(){
   currentStudentId='';currentStudentName='';currentRole='';isAdmin=false;
   await signOut(auth);
@@ -817,29 +870,30 @@ function can(module, action){
 
 function applyTabVisibility(){
   if(currentRole==='superadmin'){
-    // 主管理者：全部顯示
     ['names','add','cs','bk','stu'].forEach(k=>{
-      const el=document.getElementById('atab-'+k);
-      if(el) el.style.display='';
+      const el=document.getElementById('atab-'+k);if(el) el.style.display='';
     });
-    const tchTab=document.getElementById('atab-teachers');
-    if(tchTab) tchTab.style.display='';
+    const tchTab=document.getElementById('atab-teachers');if(tchTab) tchTab.style.display='';
+    const myTab=document.getElementById('atab-my-schedule');if(myTab) myTab.style.display='none';
+    const ovTab=document.getElementById('atab-ov');if(ovTab) ovTab.style.display='';
     return;
   }
-  // 教師：只顯示有 view 權限的 tab
-  MODULES.forEach(m=>{
-    const el=document.getElementById('atab-'+m.key);
-    if(el) el.style.display=can(m.key,'view')?'':'none';
-  });
-  const tchTab=document.getElementById('atab-teachers');
-  if(tchTab) tchTab.style.display='none';
+  if(currentRole==='teacher'){
+    // 教師只看到「我的課程預約」
+    ['names','add','cs','bk','stu','ov'].forEach(k=>{
+      const el=document.getElementById('atab-'+k);if(el) el.style.display='none';
+    });
+    const tchTab=document.getElementById('atab-teachers');if(tchTab) tchTab.style.display='none';
+    const myTab=document.getElementById('atab-my-schedule');if(myTab) myTab.style.display='';
+    return;
+  }
 }
 
 // ── 後台首頁自動跳到第一個有權限的 tab ──
 function goFirstAvailableTab(){
   if(currentRole==='superadmin'){aTab('ov');return;}
-  const first=MODULES.find(m=>can(m.key,'view'));
-  if(first) aTab(first.key); else aTab('ov');
+  if(currentRole==='teacher'){aTab('my-schedule');return;}
+  aTab('ov');
 }
 
 function startPublicListeners(){
@@ -847,11 +901,21 @@ function startPublicListeners(){
   unsubSlots=onSnapshot(query(colSlots,orderBy("date")),snap=>{
     slots=snap.docs.map(d=>({id:d.id,...d.data()}));
     refreshCals();renderAddCal();
+    if(typeof updateCopySlotSelect==='function') updateCopySlotSelect();
     if(document.getElementById('av-cs').classList.contains('active')) renderCS();
   });
   unsubSettings=onSnapshot(doc(db,"settings","courseNames"),snap=>{
-    if(snap.exists()) courseNames=snap.data().list||[];
-    else{const d=['基礎瑜珈','進階瑜珈','低空瑜珈','空中瑜珈','瑜珈輪','紓壓放鬆瑜珈'];setDoc(doc(db,"settings","courseNames"),{list:d});courseNames=d;}
+    if(snap.exists()){
+      const d=snap.data();
+      if(d.beginner!==undefined||d.advanced!==undefined||d.equipment!==undefined){
+        courseNames={beginner:d.beginner||[],advanced:d.advanced||[],equipment:d.equipment||[]};
+      } else if(d.list){
+        courseNames={beginner:d.list||[],advanced:[],equipment:[]};
+      } else {courseNames={beginner:[],advanced:[],equipment:[]};}
+    } else {
+      const def={beginner:['基礎瑜珈','初階流動'],advanced:['進階瑜珈','熱瑜珈'],equipment:['低空瑜珈','空中瑜珈','瑜珈輪']};
+      setDoc(doc(db,"settings","courseNames"),def);courseNames=def;
+    }
     if(document.getElementById('av-names').classList.contains('active')) renderNames();
   });
 }
@@ -920,60 +984,97 @@ window.aTab=function(n){
   if(n==='bk') renderBK();
   if(n==='stu') renderStudents();
   if(n==='teachers') renderTeacherAccounts();
+  if(n==='my-schedule') renderMySchedule();
 };
 
-// ── 課程類型 ──
-function renderNames(){
-  const w=document.getElementById('names-wrap');w.innerHTML='';
-  if(!courseNames.length){w.innerHTML='<div style="font-size:13px;color:var(--t2)">尚無課程類型，請新增。</div>';return;}
-  courseNames.forEach(nm=>{
-    const t=document.createElement('div');t.className='name-tag';
-    const delBtn=can('names','delete')?`<button onclick="window.delName('${nm}')">✕</button>`:'';
-    t.innerHTML=`${nm}${delBtn}`;
-    w.appendChild(t);
-  });
-  // 新增列：有 create 權限才顯示
-  const addRow=document.querySelector('.add-name-row');
-  if(addRow) addRow.style.display=can('names','create')?'flex':'none';
+// ══ 課程分類顏色對照 ══
+const CAT_COLORS={
+  beginner:{bg:'#e8f5e8',color:'#2d6a2d',border:'#4a9a4a',label:'初級'},
+  advanced:{bg:'#fff3e0',color:'#8a4000',border:'#e07000',label:'進階'},
+  equipment:{bg:'#f3e8ff',color:'#5a1a8a',border:'#9940cc',label:'器具'},
+};
+function getCatByName(name){
+  if(!courseNames||typeof courseNames!=='object') return 'beginner';
+  if((courseNames.beginner||[]).includes(name)) return 'beginner';
+  if((courseNames.advanced||[]).includes(name)) return 'advanced';
+  if((courseNames.equipment||[]).includes(name)) return 'equipment';
+  return 'beginner';
 }
-window.addCourseName=async function(){
+function getSlotColor(s){
+  if(!s||!s.name) return null;
+  return CAT_COLORS[getCatByName(s.name)]||CAT_COLORS.beginner;
+}
+function getAllCourseNames(){
+  if(!courseNames||typeof courseNames!=='object') return [];
+  return [...(courseNames.beginner||[]),...(courseNames.advanced||[]),...(courseNames.equipment||[])];
+}
+
+// ── 課程類型渲染 ──
+function renderNames(){
+  ['beginner','advanced','equipment'].forEach(cat=>{
+    const w=document.getElementById('names-wrap-'+cat);if(!w) return;
+    w.innerHTML='';
+    const list=(courseNames&&courseNames[cat])||[];
+    if(!list.length){
+      w.innerHTML=`<div style="font-size:12px;color:var(--t2);padding:4px 0">尚無課程，請新增。</div>`;
+    } else {
+      list.forEach(nm=>{
+        const col=CAT_COLORS[cat];
+        const t=document.createElement('div');t.className='name-tag';
+        t.style.cssText=`background:${col.bg};color:${col.color};border-color:${col.border}`;
+        const delBtn=can('names','delete')?`<button onclick="window.delName('${cat}','${nm}')" style="color:${col.color}">✕</button>`:'';
+        t.innerHTML=nm+delBtn;w.appendChild(t);
+      });
+    }
+    const row=document.getElementById('add-row-'+cat);
+    if(row) row.style.display=can('names','create')?'flex':'none';
+  });
+}
+window.addCourseName=async function(cat){
   if(!can('names','create')){alert('您沒有新增課程類型的權限');return;}
-  const v=document.getElementById('new-name-input').value.trim();
+  const inp=document.getElementById('new-name-'+cat);
+  const v=inp?inp.value.trim():'';
   const msg=document.getElementById('names-msg');
   if(!v){msg.className='msg-err';msg.textContent='請輸入課程名稱';return;}
-  if(courseNames.includes(v)){msg.className='msg-err';msg.textContent=`「${v}」已存在`;return;}
-  await setDoc(doc(db,"settings","courseNames"),{list:[...courseNames,v]});
-  document.getElementById('new-name-input').value='';
+  if(getAllCourseNames().includes(v)){msg.className='msg-err';msg.textContent=`「${v}」已存在`;return;}
+  const cur=(courseNames&&courseNames[cat])||[];
+  await setDoc(doc(db,"settings","courseNames"),{...courseNames,[cat]:[...cur,v]});
+  if(inp) inp.value='';
   msg.className='msg-ok';msg.textContent=`✓ 已新增「${v}」`;
   setTimeout(()=>{msg.textContent='';},2500);
 };
-window.delName=async function(nm){
+window.delName=async function(cat,nm){
   if(!can('names','delete')){alert('您沒有刪除課程類型的權限');return;}
   if(!confirm(`確定要刪除課程類型「${nm}」嗎？`)) return;
-  await setDoc(doc(db,"settings","courseNames"),{list:courseNames.filter(x=>x!==nm)});
+  await setDoc(doc(db,"settings","courseNames"),{...courseNames,[cat]:(courseNames[cat]||[]).filter(x=>x!==nm)});
 };
 
-// ── 老師快速選單 ──
-function updateTeacherSelect(){
-  const sel=document.getElementById('teacher-select');if(!sel) return;
-  sel.innerHTML='<option value="">-- 請選擇老師 --</option>';
-  teachers.forEach((t,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`${t.name} (${t.email})`;sel.appendChild(o);});
-}
-window.selectTeacher=function(val){
-  if(val===''){document.getElementById('nc-teacher').value='';document.getElementById('nc-email').value='';return;}
-  const t=teachers[parseInt(val)];
-  if(t){document.getElementById('nc-teacher').value=t.name;document.getElementById('nc-email').value=t.email;}
+
+// ══ 週期批次控制 ══
+window.toggleRepeat=function(){
+  const on=document.getElementById('nc-repeat').checked;
+  document.getElementById('repeat-options').style.display=on?'block':'none';
+  if(on) window.updateRepeatPreview();
 };
-window.deleteTeacherRecord=async function(){
-  const sel=document.getElementById('teacher-select');
-  if(!sel||sel.value===''){alert('請先選擇想刪除的老師');return;}
-  const t=teachers[parseInt(sel.value)];
-  if(!confirm(`確定要將「${t.name}」從快速選單中移除嗎？`)) return;
-  await setDoc(doc(db,"settings","teachers"),{list:teachers.filter((_,i)=>i!==parseInt(sel.value))});
-  document.getElementById('nc-teacher').value='';document.getElementById('nc-email').value='';
+window.updateRepeatPreview=function(){
+  const dateVal=document.getElementById('nc-date')?.value;
+  const countVal=parseInt(document.getElementById('nc-repeat-count')?.value)||4;
+  const typeEl=document.getElementById('nc-repeat-type');
+  const type=typeEl?typeEl.value:'weekly';
+  const prev=document.getElementById('repeat-preview');
+  if(!prev) return;
+  if(!document.getElementById('nc-repeat')?.checked) return;
+  if(!dateVal){prev.textContent='請先填寫起始日期';return;}
+  const dates=[];
+  const base=new Date(dateVal);
+  const step=type==='biweekly'?14:7;
+  for(let i=0;i<countVal;i++){
+    const d=new Date(base);d.setDate(d.getDate()+i*step);dates.push(dStr(d));
+  }
+  prev.textContent=`📅 將建立 ${countVal} 堂：${dates.join('、')}`;
 };
 
-// ── 新增時段 ──
+
 window.addSlot=async function(){
   if(!can('add','create')){alert('您沒有新增時段的權限');return;}
   const date=document.getElementById('nc-date').value;
@@ -986,15 +1087,28 @@ window.addSlot=async function(){
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg-err';msg.textContent='Email 格式不正確';return;}
   const btn=document.getElementById('add-slot-btn');btn.disabled=true;btn.textContent='儲存中…';
   try{
-    await addDoc(colSlots,{name:'',date,time,cap,booked:0,teacher,email});
+    const isRepeat=document.getElementById('nc-repeat')?.checked;
+    let dates=[date];
+    if(isRepeat){
+      const cnt=parseInt(document.getElementById('nc-repeat-count')?.value)||4;
+      const typ=document.getElementById('nc-repeat-type')?.value||'weekly';
+      const step=typ==='biweekly'?14:7;
+      dates=[];const base=new Date(date);
+      for(let i=0;i<cnt;i++){const d=new Date(base);d.setDate(d.getDate()+i*step);dates.push(dStr(d));}
+    }
+    for(const dd of dates){await addDoc(colSlots,{name:'',date:dd,time,cap,booked:0,teacher,email});}
     const exists=teachers.some(t=>t.name===teacher&&t.email===email);
     if(!exists) await setDoc(doc(db,"settings","teachers"),{list:[...teachers,{name:teacher,email}]});
-    msg.className='';msg.innerHTML=`<div class="sbox">✓ 時段已新增！${date} ${time} · ${teacher}</div>`;
+    msg.className='';
+    const cm=dates.length>1?` 共建立 ${dates.length} 堂`:'';
+    msg.innerHTML=`<div class="sbox">✓ 時段已新增${cm}！${time} · ${teacher}</div>`;
     document.getElementById('nc-date').value='';document.getElementById('nc-time').value='';
     document.getElementById('nc-cap').value='4';document.getElementById('nc-teacher').value='';
     document.getElementById('nc-email').value='';
+    if(document.getElementById('nc-repeat')){document.getElementById('nc-repeat').checked=false;document.getElementById('repeat-options').style.display='none';}
     if(document.getElementById('teacher-select')) document.getElementById('teacher-select').value='';
-    setTimeout(()=>{msg.innerHTML='';},3500);
+    if(document.getElementById('copy-slot-select')) document.getElementById('copy-slot-select').value='';
+    setTimeout(()=>{msg.innerHTML='';},4000);
     renderAddCal();
   }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;}
   btn.disabled=false;btn.textContent='新增時段';
@@ -1118,7 +1232,7 @@ window.openEditSlot=function(id){
   const s=slots.find(x=>x.id===id);if(!s) return;
   document.getElementById('mo-title').textContent='編輯時段';
   document.getElementById('mo-meta').innerHTML=`<span class="crow-dt">📅 ${s.date} &nbsp; 🕐 ${s.time}</span>`;
-  const nameOpts=courseNames.map(n=>`<option${n===s.name?' selected':''}>${n}</option>`).join('');
+  const nameOpts=getAllCourseNames().map(n=>`<option${n===s.name?' selected':''}>${n}</option>`).join('');
   document.getElementById('mo-body').innerHTML=
     `<div class="fg"><label>課程名稱（可清空讓學生選）</label><select id="ec-n"><option value="">可預約課程（未定）</option>${nameOpts}</select></div>`+
     `<div class="ig2"><div class="fg"><label>日期</label><input type="date" id="ec-d" value="${s.date}"></div><div class="fg"><label>時間</label><input type="time" id="ec-t" value="${s.time}"></div></div>`+
@@ -1165,7 +1279,7 @@ window.openEditBk=function(bid){
   const b=bookings.find(x=>x.id===bid);if(!b) return;
   document.getElementById('mo-title').textContent='編輯預約紀錄';
   document.getElementById('mo-meta').textContent=`預約 ID: ${bid}`;
-  const opts=courseNames.map(n=>`<option${n===b.courseName?' selected':''}>${n}</option>`).join('');
+  const opts=getAllCourseNames().map(n=>`<option${n===b.courseName?' selected':''}>${n}</option>`).join('');
   document.getElementById('mo-body').innerHTML=
     `<div class="fg"><label>學生姓名</label><input type="text" id="ebk-n" value="${b.name}"></div>`+
     `<div class="fg"><label>手機號碼</label><input type="tel" id="ebk-p" value="${b.phone}" maxlength="10"></div>`+
@@ -1192,133 +1306,333 @@ window.saveEditBk=async function(bid){
   }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;btn.disabled=false;btn.textContent='儲存';}
 };
 
-// ── 學生帳號管理 ──
+// ══ 學生帳號管理 ══
 function renderStudents(){
   const el=document.getElementById('av-stu');
-  let html=`<div class="acard"><h3>🧘 學生帳號管理（${students.length} 位）</h3>
-    <div style="font-size:12px;color:var(--t2);margin-bottom:12px;line-height:1.6">以下是所有已註冊的學生帳號。你可以設定每位學生的<strong>可上堂數</strong>及<strong>可上課程類型</strong>（空白代表不限制）。</div>`;
+  if(!el) return;
+  let html=`<div class="acard">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h3 style="margin-bottom:0">🧘 學生帳號（${students.length} 位）</h3>
+      ${can('stu','create')?'<button class="btn-p" style="width:auto;padding:7px 16px;font-size:13px" onclick="window.openAddStudent()">＋ 新增學生</button>':''}
+    </div>`;
   if(!students.length){
-    html+='<div style="font-size:13px;color:var(--t2);padding:8px">尚無學生帳號。學生可在登入頁面「學生預約」分頁進行註冊。</div>';
+    html+='<div style="font-size:13px;color:var(--t2);padding:8px">尚無學生帳號，請新增。</div>';
   } else {
     students.forEach(s=>{
-      const courseList=s.allowedCourses&&s.allowedCourses.length?s.allowedCourses.join('、'):'不限（全部課程）';
+      const qB=s.quotaBeginner||0,qA=s.quotaAdvanced||0,qE=s.quotaEquipment||0;
+      const uB=s.usedBeginner||0,uA=s.usedAdvanced||0,uE=s.usedEquipment||0;
       html+=`<div class="student-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px">
-          <div style="flex:1">
-            <div class="student-name">${s.name}</div>
-            <div class="student-meta">📧 ${s.email} &nbsp; 📱 ${s.phone||'—'}</div>
-            <div class="student-meta" style="margin-top:4px">可上課程：${courseList}</div>
-            <div class="student-quota">
-              ${s.totalQuota>0
-                ?`<span class="quota-tag">${s.usedQuota||0} / ${s.totalQuota} 堂已用</span>`
-                :'<span class="quota-tag used">堂數：未設定</span>'
-              }
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <div class="student-name">${s.name||'—'}${s.nickname?` <span style="font-size:12px;color:var(--t2)">（${s.nickname}）</span>`:''}</div>
+            <div class="student-meta">📱 ${s.phone||'—'} &nbsp;|&nbsp; 💼 ${s.job||'—'}</div>
+            <div class="student-meta">📧 ${s.email||'—'}</div>
+            ${s.note?`<div class="student-meta" style="color:#7a5500;font-size:11px">📝 ${s.note}</div>`:''}
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+              <div style="flex:1;min-width:70px;padding:8px;border-radius:var(--radius);background:#e8f5e8;text-align:center">
+                <div style="font-size:18px;font-weight:700;color:#2d6a2d">${qB-uB}</div>
+                <div style="font-size:10px;color:#2d6a2d">🟢 初級剩餘</div>
+                <div style="font-size:9px;color:#2d6a2d;margin-top:1px">已用${uB}/${qB}</div>
+              </div>
+              <div style="flex:1;min-width:70px;padding:8px;border-radius:var(--radius);background:#fff3e0;text-align:center">
+                <div style="font-size:18px;font-weight:700;color:#8a4000">${qA-uA}</div>
+                <div style="font-size:10px;color:#8a4000">🟠 進階剩餘</div>
+                <div style="font-size:9px;color:#8a4000;margin-top:1px">已用${uA}/${qA}</div>
+              </div>
+              <div style="flex:1;min-width:70px;padding:8px;border-radius:var(--radius);background:#f3e8ff;text-align:center">
+                <div style="font-size:18px;font-weight:700;color:#5a1a8a">${qE-uE}</div>
+                <div style="font-size:10px;color:#5a1a8a">🟣 器具剩餘</div>
+                <div style="font-size:9px;color:#5a1a8a;margin-top:1px">已用${uE}/${qE}</div>
+              </div>
             </div>
           </div>
-          ${can('stu','edit')?`<button class="btn-sm" style="font-size:12px;padding:5px 12px;white-space:nowrap" onclick="window.openEditStudent('${s.id}')">✎ 設定</button>`:''}
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start">
+            ${can('stu','edit')?`<button class="btn-sm" style="font-size:12px;padding:5px 12px" onclick="window.openEditStudent('${s.id}')">✎ 修改</button>`:''}
+            ${can('stu','delete')?`<button class="btn-sm btn-danger" style="font-size:12px;padding:5px 12px" onclick="window.delStudent('${s.id}','${(s.name||'').replace(/'/g,'`')}')">🗑 刪除</button>`:''}
+          </div>
         </div>
       </div>`;
     });
   }
-  html+='</div>';el.innerHTML=html;
+  html+='</div>';
+  el.innerHTML=html;
 }
 
-window.openEditStudent=function(sid){
-  const s=students.find(x=>x.id===sid);if(!s) return;
-  document.getElementById('mo-title').textContent='設定學生帳號';
-  document.getElementById('mo-meta').innerHTML=`<strong>${s.name}</strong> &nbsp; ${s.email}`;
-  const courseCheckboxes=courseNames.map(n=>{
-    const checked=s.allowedCourses&&s.allowedCourses.includes(n)?'checked':'';
-    return `<label style="display:flex;align-items:center;gap:6px;font-size:13px;margin-bottom:6px;cursor:pointer">
-      <input type="checkbox" value="${n}" ${checked} style="width:auto;accent-color:var(--sgd)"> ${n}
-    </label>`;
-  }).join('');
+// ── 新增學生 ──
+window.openAddStudent=function(){
+  if(!can('stu','create')){alert('您沒有新增學生帳號的權限');return;}
+  document.getElementById('mo-title').textContent='新增學生帳號';
+  document.getElementById('mo-meta').textContent='學生以姓名（或暱稱）＋手機登入';
   document.getElementById('mo-body').innerHTML=
-    `<div class="fg"><label>可上堂數（0 或空白 = 不限制）</label><input type="number" id="es-quota" value="${s.totalQuota||0}" min="0" max="999"></div>`+
-    `<div class="fg"><label>可上課程類型（不勾選 = 全部開放）</label>
-      <div style="background:var(--bg2);padding:10px 12px;border-radius:var(--radius);border:1px solid var(--bd);margin-top:4px">
-        ${courseCheckboxes||'<div style="font-size:12px;color:var(--t2)">請先至「課程類型」頁面新增課程</div>'}
-      </div>
+    `<div class="ig2">
+      <div class="fg"><label>姓名 ＊</label><input type="text" id="as-name" placeholder="真實姓名"></div>
+      <div class="fg"><label>暱稱</label><input type="text" id="as-nick" placeholder="選填，可用暱稱登入"></div>
     </div>`+
-    `<div style="display:flex;gap:8px"><button class="btn-g" onclick="closeMo()">取消</button><button class="btn-p" id="save-es-btn" onclick="window.saveEditStudent('${sid}')" style="margin-top:0">儲存設定</button></div><div id="es-msg"></div>`;
+    `<div class="ig2">
+      <div class="fg"><label>手機 ＊（登入用）</label><input type="tel" id="as-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
+      <div class="fg"><label>職業</label><input type="text" id="as-job" placeholder="選填"></div>
+    </div>`+
+    `<div class="fg"><label>Email</label><input type="email" id="as-email" placeholder="選填"></div>`+
+    `<div class="fg"><label>備註（僅管理者可見）</label><textarea id="as-note" rows="2" placeholder="選填"></textarea></div>`+
+    `<div class="section-hdr" style="margin-top:4px">購買課程次數</div>`+
+    `<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+      <div class="fg"><label style="color:#2d6a2d">🟢 初級堂數</label><input type="number" id="as-qB" min="0" value="0"></div>
+      <div class="fg"><label style="color:#8a4000">🟠 進階堂數</label><input type="number" id="as-qA" min="0" value="0"></div>
+      <div class="fg"><label style="color:#5a1a8a">🟣 器具堂數</label><input type="number" id="as-qE" min="0" value="0"></div>
+    </div>`+
+    `<div style="display:flex;gap:8px"><button class="btn-g" onclick="closeMo()">取消</button><button class="btn-p" id="as-btn" onclick="window.doAddStudent()" style="margin-top:0">＋ 建立帳號</button></div>`+
+    `<div id="as-msg" class="err-msg"></div>`;
   openMo();
 };
-
-window.saveEditStudent=async function(sid){
-  if(!can('stu','edit')){alert('您沒有修改學生帳號的權限');return;}
-  const quota=parseInt(document.getElementById('es-quota').value)||0;
-  const checked=[...document.querySelectorAll('#mo-body input[type=checkbox]:checked')].map(c=>c.value);
-  const btn=document.getElementById('save-es-btn');const msg=document.getElementById('es-msg');
-  btn.disabled=true;btn.textContent='儲存中…';
+window.doAddStudent=async function(){
+  const name=document.getElementById('as-name').value.trim();
+  const phone=document.getElementById('as-phone').value.trim().replace(/-/g,'');
+  const msg=document.getElementById('as-msg');const btn=document.getElementById('as-btn');
+  if(!name||!phone){msg.className='msg-err';msg.textContent='姓名和手機為必填';return;}
+  if(!/^09\d{8}$/.test(phone)){msg.className='msg-err';msg.textContent='手機格式錯誤 09xxxxxxxx';return;}
+  btn.disabled=true;btn.textContent='建立中…';
   try{
-    await updateDoc(doc(db,"students",sid),{totalQuota:quota,allowedCourses:checked});
-    closeMo();
-  }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;btn.disabled=false;btn.textContent='儲存設定';}
+    const chk=await getDocs(query(collection(db,"students"),where("phone","==",phone)));
+    if(!chk.empty){msg.className='msg-err';msg.textContent='此手機號碼已存在';btn.disabled=false;btn.textContent='＋ 建立帳號';return;}
+    await addDoc(collection(db,"students"),{
+      name,nickname:document.getElementById('as-nick').value.trim(),
+      phone,job:document.getElementById('as-job').value.trim(),
+      email:document.getElementById('as-email').value.trim(),
+      note:document.getElementById('as-note').value.trim(),
+      quotaBeginner:parseInt(document.getElementById('as-qB').value)||0,
+      quotaAdvanced:parseInt(document.getElementById('as-qA').value)||0,
+      quotaEquipment:parseInt(document.getElementById('as-qE').value)||0,
+      usedBeginner:0,usedAdvanced:0,usedEquipment:0,
+      createdAt:nowTs()
+    });
+    msg.className='msg-ok';msg.textContent='✅ 學生帳號已建立！';
+    btn.disabled=false;btn.textContent='＋ 建立帳號';
+    setTimeout(()=>closeMo(),1500);
+  }catch(e){msg.className='msg-err';msg.textContent='建立失敗：'+e.message;btn.disabled=false;btn.textContent='＋ 建立帳號';}
 };
 
-// ── 教師帳號管理（主管理者專用）──
+// ── 修改學生資料 ──
+window.openEditStudent=function(sid){
+  if(!can('stu','edit')){alert('您沒有修改學生帳號的權限');return;}
+  const s=students.find(x=>x.id===sid);if(!s) return;
+  document.getElementById('mo-title').textContent='修改學生資料';
+  document.getElementById('mo-meta').textContent=(s.name||'')+'·'+( s.phone||'');
+  // 取得購買紀錄
+  const purchases=s.purchases||[];
+  const purchaseRows=purchases.length
+    ? purchases.map((p,pi)=>`
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border-radius:var(--radius);margin-bottom:5px;font-size:12px">
+          <div style="flex:1">
+            <span style="font-weight:600">${p.plan||'—'}</span>
+            <span class="itag" style="margin-left:6px">${p.category||''}</span>
+            <span style="color:var(--t2);margin-left:6px">${p.sessions||0} 堂</span>
+            <span style="color:var(--t2);margin-left:6px">NT$${p.amount||0}</span>
+            <span style="color:var(--t2);margin-left:6px">${p.date||''}</span>
+          </div>
+          <button class="btn-sm btn-danger" style="padding:3px 8px;font-size:11px" onclick="window.deletePurchase('${sid}',${pi})">🗑</button>
+        </div>`).join('')
+    : '<div style="font-size:12px;color:var(--t2);padding:8px 0">尚無購買紀錄</div>';
+
+  document.getElementById('mo-title').textContent='修改學生資料';
+  document.getElementById('mo-meta').textContent=(s.name||'')+'·'+(s.phone||'');
+  document.getElementById('mo-body').innerHTML=
+    // 子分頁切換
+    `<div style="display:flex;border:1px solid var(--bd);border-radius:var(--radius);overflow:hidden;margin-bottom:14px">
+      <button id="stu-tab-info" onclick="switchStuEditTab('info')" style="flex:1;padding:7px;font-size:12px;border:none;background:var(--sgd);color:#fff;cursor:pointer;font-family:inherit;font-weight:500">基本資料</button>
+      <button id="stu-tab-quota" onclick="switchStuEditTab('quota')" style="flex:1;padding:7px;font-size:12px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit">課程次數</button>
+      <button id="stu-tab-purchase" onclick="switchStuEditTab('purchase')" style="flex:1;padding:7px;font-size:12px;border:none;background:transparent;color:var(--t2);cursor:pointer;font-family:inherit">購買紀錄</button>
+    </div>`+
+    // 基本資料
+    `<div id="stu-edit-info">
+      <div class="ig2">
+        <div class="fg"><label>姓名 ＊</label><input type="text" id="es-name" value="${s.name||''}"></div>
+        <div class="fg"><label>暱稱</label><input type="text" id="es-nick" value="${s.nickname||''}"></div>
+      </div>
+      <div class="ig2">
+        <div class="fg"><label>手機 ＊</label><input type="tel" id="es-phone" value="${s.phone||''}" maxlength="10"></div>
+        <div class="fg"><label>職業</label><input type="text" id="es-job" value="${s.job||''}"></div>
+      </div>
+      <div class="fg"><label>Email</label><input type="email" id="es-email" value="${s.email||''}"></div>
+      <div class="fg"><label>備註（僅管理者可見）</label><textarea id="es-note" rows="2">${s.note||''}</textarea></div>
+      <div style="display:flex;gap:8px"><button class="btn-g" onclick="closeMo()">取消</button><button class="btn-p" id="es-btn" onclick="window.saveEditStudent('${sid}')" style="margin-top:0">儲存</button></div>
+      <div id="es-msg" class="err-msg"></div>
+    </div>`+
+    // 課程次數
+    `<div id="stu-edit-quota" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div class="fg"><label style="color:#2d6a2d">🟢 初級堂數</label><input type="number" id="es-qB" min="0" value="${s.quotaBeginner||0}"><small style="color:#2d6a2d;font-size:10px">已用：${s.usedBeginner||0}</small></div>
+        <div class="fg"><label style="color:#8a4000">🟠 進階堂數</label><input type="number" id="es-qA" min="0" value="${s.quotaAdvanced||0}"><small style="color:#8a4000;font-size:10px">已用：${s.usedAdvanced||0}</small></div>
+        <div class="fg"><label style="color:#5a1a8a">🟣 器具堂數</label><input type="number" id="es-qE" min="0" value="${s.quotaEquipment||0}"><small style="color:#5a1a8a;font-size:10px">已用：${s.usedEquipment||0}</small></div>
+      </div>
+      <div style="display:flex;gap:8px"><button class="btn-g" onclick="closeMo()">取消</button><button class="btn-p" onclick="window.saveStudentQuota('${sid}')" style="margin-top:0">儲存堂數</button></div>
+      <div id="quota-msg" class="err-msg"></div>
+    </div>`+
+    // 購買紀錄
+    `<div id="stu-edit-purchase" style="display:none">
+      <div id="purchase-list">${purchaseRows}</div>
+      <div style="border-top:1px solid var(--bd);padding-top:12px;margin-top:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--sgd);margin-bottom:8px">＋ 新增購買紀錄</div>
+        <div class="ig2">
+          <div class="fg"><label>方案名稱</label><input type="text" id="pr-plan" placeholder="例：10堂初級課程"></div>
+          <div class="fg"><label>類別</label>
+            <select id="pr-cat">
+              <option value="beginner">🟢 初級</option>
+              <option value="advanced">🟠 進階</option>
+              <option value="equipment">🟣 器具</option>
+            </select>
+          </div>
+        </div>
+        <div class="ig2">
+          <div class="fg"><label>堂數</label><input type="number" id="pr-sessions" min="1" value="10" placeholder="堂數"></div>
+          <div class="fg"><label>金額（NT$）</label><input type="number" id="pr-amount" min="0" value="0" placeholder="金額"></div>
+        </div>
+        <div class="fg"><label>購買日期</label><input type="date" id="pr-date" value="${new Date().toISOString().slice(0,10)}"></div>
+        <button class="btn-p" onclick="window.addPurchase('${sid}')" style="margin-top:0">新增紀錄</button>
+        <div id="pr-msg" class="err-msg"></div>
+      </div>
+    </div>`;
+  openMo();
+};
+window.saveEditStudent=async function(sid){
+  if(!can('stu','edit')){alert('您沒有修改學生帳號的權限');return;}
+  const name=document.getElementById('es-name').value.trim();
+  const phone=document.getElementById('es-phone').value.trim().replace(/-/g,'');
+  const msg=document.getElementById('es-msg');const btn=document.getElementById('es-btn');
+  if(!name||!phone){msg.className='msg-err';msg.textContent='姓名和手機為必填';return;}
+  if(!/^09\d{8}$/.test(phone)){msg.className='msg-err';msg.textContent='手機格式錯誤';return;}
+  btn.disabled=true;btn.textContent='儲存中…';
+  try{
+    await updateDoc(doc(db,"students",sid),{
+      name,nickname:document.getElementById('es-nick').value.trim(),
+      phone,job:document.getElementById('es-job').value.trim(),
+      email:document.getElementById('es-email').value.trim(),
+      note:document.getElementById('es-note').value.trim(),
+      quotaBeginner:parseInt(document.getElementById('es-qB').value)||0,
+      quotaAdvanced:parseInt(document.getElementById('es-qA').value)||0,
+      quotaEquipment:parseInt(document.getElementById('es-qE').value)||0,
+    });
+    closeMo();
+  }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;btn.disabled=false;btn.textContent='儲存';}
+};
+
+// ── 學生子分頁切換 ──
+window.switchStuEditTab=function(tab){
+  ['info','quota','purchase'].forEach(t=>{
+    const el=document.getElementById('stu-edit-'+t);
+    const btn=document.getElementById('stu-tab-'+t);
+    if(el) el.style.display=t===tab?'block':'none';
+    if(btn){
+      btn.style.background=t===tab?'var(--sgd)':'transparent';
+      btn.style.color=t===tab?'#fff':'var(--t2)';
+    }
+  });
+};
+
+// ── 儲存課程次數（獨立）──
+window.saveStudentQuota=async function(sid){
+  const msg=document.getElementById('quota-msg');
+  try{
+    await updateDoc(doc(db,"students",sid),{
+      quotaBeginner:parseInt(document.getElementById('es-qB').value)||0,
+      quotaAdvanced:parseInt(document.getElementById('es-qA').value)||0,
+      quotaEquipment:parseInt(document.getElementById('es-qE').value)||0,
+    });
+    msg.className='msg-ok';msg.textContent='✅ 堂數已儲存！';
+    setTimeout(()=>{msg.textContent='';},2000);
+  }catch(e){msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;}
+};
+
+// ── 新增購買紀錄 ──
+window.addPurchase=async function(sid){
+  const plan=document.getElementById('pr-plan').value.trim();
+  const cat=document.getElementById('pr-cat').value;
+  const sessions=parseInt(document.getElementById('pr-sessions').value)||0;
+  const amount=parseInt(document.getElementById('pr-amount').value)||0;
+  const date=document.getElementById('pr-date').value;
+  const msg=document.getElementById('pr-msg');
+  if(!plan||!date){msg.className='msg-err';msg.textContent='請填寫方案名稱和日期';return;}
+  const s=students.find(x=>x.id===sid);if(!s) return;
+  const purchases=[...(s.purchases||[]),{plan,category:cat,sessions,amount,date,createdAt:nowTs()}];
+  try{
+    await updateDoc(doc(db,"students",sid),{purchases});
+    msg.className='msg-ok';msg.textContent='✅ 已新增購買紀錄！';
+    document.getElementById('pr-plan').value='';
+    document.getElementById('pr-sessions').value='10';
+    document.getElementById('pr-amount').value='0';
+    // 重新整理購買清單
+    const catLabels={beginner:'🟢 初級',advanced:'🟠 進階',equipment:'🟣 器具'};
+    const rows=purchases.map((p,pi)=>`
+      <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg2);border-radius:var(--radius);margin-bottom:5px;font-size:12px">
+        <div style="flex:1">
+          <span style="font-weight:600">${p.plan||'—'}</span>
+          <span class="itag" style="margin-left:6px">${catLabels[p.category]||p.category||''}</span>
+          <span style="color:var(--t2);margin-left:6px">${p.sessions||0} 堂</span>
+          <span style="color:var(--t2);margin-left:6px">NT$${p.amount||0}</span>
+          <span style="color:var(--t2);margin-left:6px">${p.date||''}</span>
+        </div>
+        <button class="btn-sm btn-danger" style="padding:3px 8px;font-size:11px" onclick="window.deletePurchase('${sid}',${pi})">🗑</button>
+      </div>`).join('');
+    document.getElementById('purchase-list').innerHTML=rows||'<div style="font-size:12px;color:var(--t2)">尚無購買紀錄</div>';
+    setTimeout(()=>{msg.textContent='';},2000);
+  }catch(e){msg.className='msg-err';msg.textContent='新增失敗：'+e.message;}
+};
+
+// ── 刪除購買紀錄 ──
+window.deletePurchase=async function(sid,pi){
+  if(!confirm('確定要刪除這筆購買紀錄嗎？')) return;
+  const s=students.find(x=>x.id===sid);if(!s) return;
+  const purchases=(s.purchases||[]).filter((_,i)=>i!==pi);
+  try{
+    await updateDoc(doc(db,"students",sid),{purchases});
+  }catch(e){alert('刪除失敗：'+e.message);}
+};
+
+
+window.delStudent=async function(sid,name){
+  if(!can('stu','delete')){alert('您沒有刪除學生帳號的權限');return;}
+  if(!confirm(`確定要刪除學生「${name}」的帳號嗎？`)) return;
+  try{await deleteDoc(doc(db,"students",sid));}catch(e){alert('刪除失敗：'+e.message);}
+};
+
+// ══ 教師帳號管理（主管理者）══
 function renderTeacherAccounts(){
-  const el=document.getElementById('av-teachers');
-  const pending=teacherAccounts.filter(t=>t.status==='pending'&&t.role!=='superadmin');
+  const el=document.getElementById('av-teachers');if(!el) return;
   const approved=teacherAccounts.filter(t=>t.status==='approved'&&t.role!=='superadmin');
   const rejected=teacherAccounts.filter(t=>t.status==='rejected');
-
   let html=`<div class="acard">
-    <h3>👑 主管理者功能：教師帳號管理</h3>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <h3 style="margin-bottom:0">👩‍🏫 教師帳號管理</h3>
+      <button class="btn-p" style="width:auto;padding:7px 16px;font-size:13px" onclick="window.openAddTeacher()">＋ 新增教師</button>
+    </div>
     <div style="font-size:12px;color:var(--t2);margin-bottom:14px;line-height:1.6">
-      審核教師申請、設定各教師的功能權限。核准後教師才可登入後台，且只能使用被授權的功能。
-    </div>`;
-
-  // 待審核
-  html+=`<div class="section-hdr" style="color:#7a5500">⏳ 待審核申請（${pending.length} 筆）</div>`;
-  if(!pending.length){html+='<div style="font-size:13px;color:var(--t2);padding:8px 0 12px">目前無待審核申請</div>';}
-  else pending.forEach(t=>{
-    html+=`<div class="crow" style="background:#fff8e1;border:1px solid #ffe082;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-      <div class="dot" style="background:#f0a500"></div>
-      <div style="flex:1;min-width:200px">
-        <div class="crow-name">${t.name}</div>
-        <div class="crow-dt" style="color:#7a5500">📧 ${t.email} &nbsp; 📱 ${t.phone||'—'}</div>
-        <div class="crow-sub">申請時間：${t.createdAt||'—'}</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn-p" style="width:auto;padding:6px 14px;font-size:12px;background:#2d5a3d" onclick="window.approveTeacher('${t.id}')">✅ 核准</button>
-        <button class="btn-sm btn-danger" style="padding:6px 14px;font-size:12px" onclick="window.rejectTeacher('${t.id}')">❌ 拒絕</button>
-      </div>
-    </div>`;
-  });
-
-  // 已核准
-  html+=`<div class="section-hdr" style="margin-top:8px">✅ 已核准教師（${approved.length} 位）</div>`;
-  if(!approved.length){html+='<div style="font-size:13px;color:var(--t2);padding:8px 0 12px">尚無已核准的教師帳號</div>';}
-  else approved.forEach(t=>{
-    // 顯示目前權限摘要
-    const p=t.permissions||{};
-    const permSummary=MODULES.map(m=>{
-      const ops=ACTIONS.filter(a=>p[m.key]&&p[m.key][a]);
-      if(!ops.length) return `<span style="font-size:10px;background:var(--wm2);color:var(--t2);padding:1px 5px;border-radius:3px">${m.label}：無</span>`;
-      return `<span style="font-size:10px;background:var(--sgl);color:var(--sgd);padding:1px 5px;border-radius:3px">${m.label}：${ops.map(a=>ACTION_LABELS[a]).join('/')}</span>`;
-    }).join(' ');
-    html+=`<div class="crow" style="margin-bottom:10px;flex-wrap:wrap;gap:8px">
-      <div class="dot"></div>
-      <div style="flex:1;min-width:200px">
-        <div class="crow-name">${t.name}</div>
-        <div class="crow-dt">📧 ${t.email} &nbsp; 📱 ${t.phone||'—'}</div>
-        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">${permSummary}</div>
-      </div>
-      <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap">
-        <button class="btn-p" style="width:auto;padding:6px 14px;font-size:12px" onclick="window.openPermModal('${t.id}')">🔑 權限設定</button>
-        <button class="btn-sm btn-danger" style="padding:6px 12px;font-size:12px" onclick="window.rejectTeacher('${t.id}')">停用</button>
-      </div>
-    </div>`;
-  });
-
-  // 已停用
+      教師登入後台後，可查看自己負責課程的預約情形。
+    </div>
+    <div class="section-hdr">✅ 已核准教師（${approved.length} 位）</div>`;
+  if(!approved.length){
+    html+='<div style="font-size:13px;color:var(--t2);padding:8px 0 12px">尚無教師帳號，請點「＋ 新增教師」建立。</div>';
+  } else {
+    approved.forEach(t=>{
+      html+=`<div class="crow" style="margin-bottom:8px;flex-wrap:wrap;gap:8px">
+        <div class="dot"></div>
+        <div style="flex:1;min-width:200px">
+          <div class="crow-name">${t.name||'—'}${t.nickname?` <span style="font-size:11px;color:var(--t2)">（${t.nickname}）</span>`:''}</div>
+          <div class="crow-dt">📧 ${t.email} &nbsp; 📱 ${t.phone||'—'}</div>
+          ${t.note?`<div class="crow-sub">📝 ${t.note}</div>`:''}
+        </div>
+        <div style="display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap">
+          <button class="btn-p" style="width:auto;padding:5px 12px;font-size:12px" onclick="window.openEditTeacher('${t.id}')">✎ 修改</button>
+          <button class="btn-sm btn-danger" style="padding:5px 12px;font-size:12px" onclick="window.rejectTeacher('${t.id}')">停用</button>
+          <button class="btn-sm btn-danger" style="padding:5px 12px;font-size:12px" onclick="window.deleteTeacher('${t.id}','${(t.name||``).replace(/`/g,``)}')">🗑 刪除</button>
+        </div>
+      </div>`;
+    });
+  }
   if(rejected.length){
-    html+=`<div class="section-hdr" style="margin-top:8px;color:var(--t2)">❌ 已停用帳號（${rejected.length} 位）</div>`;
+    html+=`<div class="section-hdr" style="margin-top:8px;color:var(--t2)">❌ 已停用（${rejected.length} 位）</div>`;
     rejected.forEach(t=>{
       html+=`<div class="crow" style="opacity:.6;margin-bottom:6px">
         <div class="dot" style="background:var(--wm3)"></div>
-        <div style="flex:1"><div class="crow-name">${t.name}</div><div class="crow-dt">📧 ${t.email}</div></div>
+        <div style="flex:1"><div class="crow-name">${t.name||'—'}</div><div class="crow-dt">📧 ${t.email}</div></div>
         <button class="btn-sm" style="padding:5px 12px;font-size:12px" onclick="window.approveTeacher('${t.id}')">恢復</button>
       </div>`;
     });
@@ -1327,97 +1641,172 @@ function renderTeacherAccounts(){
   el.innerHTML=html;
 }
 
-// ── 開啟權限設定 Modal ──
-window.openPermModal=function(id){
-  const t=teacherAccounts.find(x=>x.id===id);if(!t) return;
-  const p=t.permissions||{};
-  document.getElementById('mo-title').textContent='🔑 權限設定';
-  document.getElementById('mo-meta').innerHTML=`<strong>${t.name}</strong> &nbsp; ${t.email}`;
-
-  // 建立權限矩陣表格
-  let rows='';
-  MODULES.forEach(m=>{
-    const mp=p[m.key]||{};
-    const cells=ACTIONS.map(a=>{
-      const chk=mp[a]?'checked':'';
-      return `<td style="text-align:center;padding:6px 8px">
-        <input type="checkbox" data-mod="${m.key}" data-act="${a}" ${chk}
-          style="width:16px;height:16px;accent-color:var(--sgd);cursor:pointer">
-      </td>`;
-    }).join('');
-    rows+=`<tr style="border-bottom:1px solid var(--bd)">
-      <td style="padding:8px 10px;font-weight:600;font-size:13px;white-space:nowrap">${m.label}</td>
-      ${cells}
-    </tr>`;
-  });
-
-  document.getElementById('mo-body').innerHTML=`
-    <div style="overflow-x:auto;margin-bottom:12px">
-      <table style="width:100%;border-collapse:collapse;font-size:13px">
-        <thead>
-          <tr style="background:var(--bg2)">
-            <th style="padding:8px 10px;text-align:left;font-size:12px;color:var(--t2);white-space:nowrap">功能</th>
-            ${ACTIONS.map(a=>`<th style="padding:8px;text-align:center;font-size:12px;color:var(--t2)">${ACTION_LABELS[a]}</th>`).join('')}
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-    <div style="background:var(--bg2);border-radius:var(--radius);padding:8px 12px;font-size:11px;color:var(--t2);margin-bottom:12px;line-height:1.6">
-      💡 <strong>查看</strong>：可看到該功能頁面 &nbsp;｜&nbsp;
-      <strong>新增</strong>：可建立新資料 &nbsp;｜&nbsp;
-      <strong>修改</strong>：可編輯現有資料 &nbsp;｜&nbsp;
-      <strong>刪除</strong>：可刪除資料
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn-g" onclick="closeMo()">取消</button>
-      <button class="btn-p" id="save-perm-btn" onclick="window.savePerms('${id}')" style="margin-top:0">💾 儲存權限</button>
-    </div>
-    <div id="perm-msg"></div>`;
+// ── 新增教師帳號 ──
+window.openAddTeacher=function(){
+  document.getElementById('mo-title').textContent='新增教師帳號';
+  document.getElementById('mo-meta').textContent='教師以 Email + 密碼（初始為手機號碼）登入後台';
+  document.getElementById('mo-body').innerHTML=
+    `<div class="ig2">
+      <div class="fg"><label>姓名 ＊</label><input type="text" id="at-name" placeholder="真實姓名"></div>
+      <div class="fg"><label>暱稱</label><input type="text" id="at-nick" placeholder="選填"></div>
+    </div>`+
+    `<div class="ig2">
+      <div class="fg"><label>Email ＊（登入帳號）</label><input type="email" id="at-email" placeholder="teacher@jiuyoga.com"></div>
+      <div class="fg"><label>手機 ＊（初始密碼）</label><input type="tel" id="at-phone" placeholder="09xxxxxxxx" maxlength="10"></div>
+    </div>`+
+    `<div class="fg"><label>備註（僅管理者可見）</label><textarea id="at-note" rows="2" placeholder="選填"></textarea></div>`+
+    `<div style="background:var(--sgl);border-radius:var(--radius);padding:10px 12px;font-size:12px;color:var(--sgd);margin-bottom:12px;line-height:1.6">
+      🔑 初始密碼為手機號碼，例：0912345678。教師登入後台後可查看自己負責課程的學生預約情形。
+    </div>`+
+    `<div style="display:flex;gap:8px"><button class="btn-g" onclick="closeMo()">取消</button><button class="btn-p" id="at-btn" onclick="window.doAddTeacher()" style="margin-top:0">＋ 建立帳號</button></div>`+
+    `<div id="at-msg" class="err-msg"></div>`;
   openMo();
 };
 
-// ── 儲存權限 ──
-window.savePerms=async function(id){
-  const btn=document.getElementById('save-perm-btn');
-  const msg=document.getElementById('perm-msg');
-  btn.disabled=true;btn.textContent='儲存中…';
-  // 讀取所有 checkbox 狀態
-  const perms={};
-  document.querySelectorAll('#mo-body input[type=checkbox]').forEach(cb=>{
-    const mod=cb.dataset.mod;const act=cb.dataset.act;
-    if(!perms[mod]) perms[mod]={};
-    perms[mod][act]=cb.checked;
-  });
-  // 如果有任何 create/edit/delete，自動補上 view
-  MODULES.forEach(m=>{
-    if(!perms[m.key]) perms[m.key]={};
-    const mp=perms[m.key];
-    if(mp.create||mp.edit||mp.delete) mp.view=true;
-  });
+window.doAddTeacher=async function(){
+  const name=document.getElementById('at-name').value.trim();
+  const email=document.getElementById('at-email').value.trim();
+  const phone=document.getElementById('at-phone').value.trim().replace(/-/g,'');
+  const msg=document.getElementById('at-msg');const btn=document.getElementById('at-btn');
+  if(!name||!email||!phone){msg.className='msg-err';msg.textContent='姓名、Email 和手機為必填';return;}
+  if(!/^09\d{8}$/.test(phone)){msg.className='msg-err';msg.textContent='手機格式錯誤 09xxxxxxxx';return;}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){msg.className='msg-err';msg.textContent='Email 格式錯誤';return;}
+  btn.disabled=true;btn.textContent='建立中…';
   try{
-    await updateDoc(doc(db,"teacherAccounts",id),{permissions:perms});
-    msg.className='msg-ok';msg.textContent='✅ 權限已儲存！';
-    setTimeout(()=>{closeMo();},1000);
+    const {initializeApp:initApp2,getApps}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const {getAuth:getAuth2,createUserWithEmailAndPassword:cuwep}=await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js');
+    let sec=getApps().find(a=>a.name==='sec2');
+    if(!sec) sec=initApp2(app.options,'sec2');
+    const auth2=getAuth2(sec);
+    const cred=await cuwep(auth2,email,phone);
+    await auth2.signOut();
+    await setDoc(doc(db,"teacherAccounts",cred.user.uid),{
+      name,nickname:document.getElementById('at-nick').value.trim(),
+      email,phone,
+      note:document.getElementById('at-note').value.trim(),
+      status:'approved',role:'teacher',
+      createdAt:nowTs()
+    });
+    msg.className='msg-ok';msg.textContent=`✅ 教師帳號已建立！初始密碼：${phone}`;
+    btn.disabled=false;btn.textContent='＋ 建立帳號';
+    setTimeout(()=>closeMo(),2000);
   }catch(e){
-    msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;
-    btn.disabled=false;btn.textContent='💾 儲存權限';
+    const msgs={'auth/email-already-in-use':'此 Email 已被使用'};
+    msg.className='msg-err';msg.textContent=msgs[e.code]||('建立失敗：'+e.message);
+    btn.disabled=false;btn.textContent='＋ 建立帳號';
   }
 };
 
-window.approveTeacher=async function(id){
-  if(!confirm('確定核准此教師帳號？核准後即可登入後台。')) return;
+window.openEditTeacher=function(id){
+  const t=teacherAccounts.find(x=>x.id===id);if(!t) return;
+  document.getElementById('mo-title').textContent='修改教師資料';
+  document.getElementById('mo-meta').textContent=t.email;
+  document.getElementById('mo-body').innerHTML=
+    `<div class="ig2">
+      <div class="fg"><label>姓名 ＊</label><input type="text" id="et-name" value="${t.name||''}"></div>
+      <div class="fg"><label>暱稱</label><input type="text" id="et-nick" value="${t.nickname||''}"></div>
+    </div>`+
+    `<div class="ig2">
+      <div class="fg"><label>Email（不可修改）</label><input type="email" id="et-email" value="${t.email||''}" disabled style="background:var(--bg2);color:var(--t2)"></div>
+      <div class="fg"><label>手機</label><input type="tel" id="et-phone" value="${t.phone||''}" maxlength="10"></div>
+    </div>`+
+    `<div class="fg"><label>備註（僅管理者可見）</label><textarea id="et-note" rows="2">${t.note||''}</textarea></div>`+
+    `<div style="display:flex;gap:8px"><button class="btn-g" onclick="closeMo()">取消</button><button class="btn-p" id="et-btn" onclick="window.saveEditTeacher('${id}')" style="margin-top:0">儲存</button></div>`+
+    `<div id="et-msg" class="err-msg"></div>`;
+  openMo();
+};
+window.saveEditTeacher=async function(id){
+  const name=document.getElementById('et-name').value.trim();
+  const msg=document.getElementById('et-msg');
+  const btn=document.getElementById('et-btn');
+  if(!name){msg.className='msg-err';msg.textContent='姓名不可空白';return;}
+  btn.disabled=true;btn.textContent='儲存中…';
   try{
-    await updateDoc(doc(db,"teacherAccounts",id),{status:'approved'});
-  }catch(e){alert('操作失敗：'+e.message);}
+    await updateDoc(doc(db,"teacherAccounts",id),{
+      name,
+      nickname:document.getElementById('et-nick').value.trim(),
+      phone:document.getElementById('et-phone').value.trim().replace(/-/g,''),
+      note:document.getElementById('et-note').value.trim(),
+    });
+    closeMo();
+  }catch(e){
+    msg.className='msg-err';msg.textContent='儲存失敗：'+e.message;
+    btn.disabled=false;btn.textContent='儲存';
+  }
+};
+window.deleteTeacher=async function(id,name){
+  if(!confirm('確定要永久刪除教師「'+name+'」的帳號嗎？\n此操作無法復原。')) return;
+  try{
+    await deleteDoc(doc(db,"teacherAccounts",id));
+  }catch(e){alert('刪除失敗：'+e.message);}
+};
+
+
+window.approveTeacher=async function(id){
+  if(!confirm('確定恢復此教師帳號？')) return;
+  try{await updateDoc(doc(db,"teacherAccounts",id),{status:'approved'});}
+  catch(e){alert('操作失敗：'+e.message);}
 };
 window.rejectTeacher=async function(id){
   const t=teacherAccounts.find(x=>x.id===id);
   if(!confirm(`確定停用「${t?.name||'此教師'}」的帳號？`)) return;
-  try{
-    await updateDoc(doc(db,"teacherAccounts",id),{status:'rejected'});
-  }catch(e){alert('操作失敗：'+e.message);}
+  try{await updateDoc(doc(db,"teacherAccounts",id),{status:'rejected'});}
+  catch(e){alert('操作失敗：'+e.message);}
 };
+
+// ══ 教師：查看自己負責課程的預約情形 ══
+function renderMySchedule(){
+  const el=document.getElementById('av-my-schedule');if(!el) return;
+  // 取得目前登入教師的 email
+  const teacherEmail=document.getElementById('admin-lbl')?.textContent||'';
+  // 過濾出此教師負責的時段
+  const mySlots=slots.filter(s=>s.email===teacherEmail||s.teacher===teacherEmail);
+  // 取得此教師相關的預約
+  const myBookings=bookings.filter(b=>b.email===teacherEmail||b.teacher===teacherEmail);
+
+  let html=`<div class="acard">
+    <h3>📋 我的課程預約情形</h3>
+    <div style="font-size:12px;color:var(--t2);margin-bottom:14px">顯示你負責的所有時段及學生預約情形。</div>`;
+
+  if(!mySlots.length){
+    html+='<div style="font-size:13px;color:var(--t2);padding:8px">目前沒有你負責的課程時段。</div>';
+  } else {
+    mySlots.sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+    mySlots.forEach(s=>{
+      const f=s.booked>=s.cap;const isOpen=!s.name;
+      const slotBookings=myBookings.filter(b=>b.slotId===s.id||b.date===s.date&&b.time===s.time&&(b.teacher===s.teacher||b.email===s.email));
+      html+=`<div class="acard" style="margin-bottom:10px;border:1px solid var(--bd)">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div style="flex:1">
+            <div style="font-weight:700;font-size:14px">${isOpen?'可預約課程':s.name}</div>
+            <div style="font-size:12px;color:var(--sgd);margin-top:3px">📅 ${s.date} &nbsp; 🕐 ${s.time}</div>
+          </div>
+          <span class="badge ${f?'bfull':'bsage'}">${s.booked}/${s.cap} 人</span>
+        </div>`;
+      if(slotBookings.length){
+        html+=`<div style="margin-top:10px;border-top:1px solid var(--bd);padding-top:10px">
+          <div style="font-size:11px;font-weight:600;color:var(--t2);margin-bottom:6px">預約學生（${slotBookings.length} 位）</div>`;
+        slotBookings.forEach(b=>{
+          html+=`<div class="brow" style="margin-bottom:4px">
+            <div style="flex:1">
+              <span style="font-weight:600">${b.name}</span>
+              <span style="font-size:11px;color:var(--t2);margin-left:8px">${b.phone}</span>
+              <span class="itag" style="margin-left:8px">${b.courseName||''}</span>
+            </div>
+            <span style="font-size:11px;color:var(--t2)">${b.ts||''}</span>
+          </div>`;
+        });
+        html+='</div>';
+      } else {
+        html+=`<div style="font-size:12px;color:var(--t2);margin-top:8px">尚無學生預約</div>`;
+      }
+      html+='</div>';
+    });
+  }
+  html+='</div>';
+  el.innerHTML=html;
+}
+
 
 // ── 學生月曆 ──
 function renderMonth(){
@@ -1435,7 +1824,10 @@ function renderMonth(){
     const nd=document.createElement('div');nd.className='dn';nd.textContent=d;el.appendChild(nd);
     slots.filter(s=>s.date===ds).sort((a,b)=>a.time.localeCompare(b.time)).forEach(s=>{
       const f=s.booked>=s.cap;const isOpen=!s.name;
-      const p=document.createElement('div');p.className='ep'+(isOpen?' open':f?' full':'');
+      const p=document.createElement('div');
+      if(isOpen) p.className='ep cat-open';
+      else if(f){p.className='ep full';}
+      else{p.className='ep';const col=getSlotColor(s);if(col)p.style.cssText=`background:${col.bg};color:${col.color};border-left-color:${col.border}`;}
       p.textContent=s.time+' '+(isOpen?'可預約課程':s.name);
       p.title=isOpen?`${s.time} 可預約課程（${s.teacher}）`:`${s.name} (${s.teacher})`;
       p.onclick=()=>openBook(s);el.appendChild(p);
@@ -1446,29 +1838,68 @@ function renderMonth(){
   if(rem<7) for(let i=1;i<=rem;i++){const e=document.createElement('div');e.className='dc om';const n=document.createElement('div');n.className='dn';n.textContent=i;e.appendChild(n);g.appendChild(e);}
 }
 
-// ── 學生週曆 ──
+
+// ── 學生週曆（每30分鐘一格，支援非整點課程）──
 function renderWeek(){
   const we=new Date(curWS);we.setDate(we.getDate()+6);
   const fmt=d=>(d.getMonth()+1)+'/'+d.getDate();
   document.getElementById('wtitle').textContent=`${curWS.getFullYear()} 年 ${fmt(curWS)} – ${fmt(we)}`;
   const g=document.getElementById('wgrid');g.innerHTML='';
-  const c0=document.createElement('div');c0.className='wh';c0.textContent='時間';g.appendChild(c0);
-  for(let i=0;i<7;i++){const d=new Date(curWS);d.setDate(d.getDate()+i);const h=document.createElement('div');h.className='wh';if(d.toDateString()===TODAY.toDateString()) h.classList.add('today-col');h.textContent='週'+DW[d.getDay()]+' '+d.getDate();g.appendChild(h);}
-  ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'].forEach(hr=>{
-    const t=document.createElement('div');t.className='ts';t.textContent=hr;g.appendChild(t);
-    for(let i=0;i<7;i++){
-      const d=new Date(curWS);d.setDate(d.getDate()+i);const ds=dStr(d);
-      const cell=document.createElement('div');cell.className='wc';
-      slots.filter(s=>s.date===ds&&s.time===hr).forEach(s=>{
-        const f=s.booked>=s.cap;const isOpen=!s.name;
-        const ev=document.createElement('div');ev.className='we'+(isOpen?' open':f?' full':'');
-        ev.textContent=isOpen?'可預約課程':s.name;ev.title=isOpen?`可預約課程（${s.teacher}）`:`${s.name}`;
-        ev.onclick=()=>openBook(s);cell.appendChild(ev);
-      });
-      g.appendChild(cell);
+
+  // Header
+  const h0=document.createElement('div');h0.className='wh';h0.textContent='時間';g.appendChild(h0);
+  for(let i=0;i<7;i++){
+    const d=new Date(curWS);d.setDate(d.getDate()+i);
+    const h=document.createElement('div');h.className='wh';
+    if(d.toDateString()===TODAY.toDateString()) h.classList.add('today-col');
+    h.textContent='週'+DW[d.getDay()]+' '+d.getDate();
+    g.appendChild(h);
+  }
+
+  // 時間格：08:00~21:00，每30分鐘一格
+  for(let h=8;h<21;h++){
+    for(let m=0;m<60;m+=30){
+      const timeStr=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+      const isHour=(m===0);
+
+      // 時間欄
+      const tc=document.createElement('div');tc.className='ts';
+      tc.style.height='26px';tc.style.fontSize='9px';
+      tc.style.borderBottom=isHour?'1px solid var(--bd)':'1px solid rgba(0,0,0,0.05)';
+      tc.textContent=isHour?timeStr:'';
+      g.appendChild(tc);
+
+      // 7天格子
+      for(let i=0;i<7;i++){
+        const d=new Date(curWS);d.setDate(d.getDate()+i);
+        const ds=dStr(d);
+        const cell=document.createElement('div');
+        cell.className='wc';
+        cell.style.height='26px';
+        cell.style.borderBottom=isHour?'1px solid var(--bd)':'1px solid rgba(0,0,0,0.05)';
+
+        slots.filter(s=>s.date===ds&&s.time===timeStr).forEach(s=>{
+          const f=s.booked>=s.cap;const isOpen=!s.name;
+          const ev=document.createElement('div');
+          if(isOpen){ev.className='we cat-open';}
+          else if(f){ev.className='we full';}
+          else{
+            ev.className='we';
+            const col=getSlotColor(s);
+            if(col) ev.style.cssText=`background:${col.bg};color:${col.color};border-left-color:${col.border}`;
+          }
+          ev.style.fontSize='9px';ev.style.padding='1px 3px';
+          ev.textContent=isOpen?'可預約':s.name;
+          ev.title=isOpen?`可預約課程（${s.teacher}）`:`${s.name}`;
+          ev.onclick=()=>openBook(s);
+          cell.appendChild(ev);
+        });
+        g.appendChild(cell);
+      }
     }
-  });
+  }
 }
+
 
 // ── 預約 Modal ──
 function openBook(s){
@@ -1483,7 +1914,13 @@ function openBook(s){
   if(full){
     document.getElementById('mo-body').innerHTML=`<div style="text-align:center;padding:2rem 0;color:var(--t2)"><div style="font-size:36px;margin-bottom:10px">🚫</div><div style="font-size:15px;font-weight:600;color:#a32d2d">此課程名額已滿</div><div style="font-size:13px;margin-top:6px">請回行事曆選擇其他時段</div><button class="btn-g" style="margin-top:16px" onclick="closeMo()">關閉</button></div>`;
   } else {
-    const courseOpts=isOpen?courseNames.map(n=>`<option value="${n}">${n}</option>`).join(''):`<option value="${s.name}" selected>${s.name}</option>`;
+    let courseOpts='';
+    if(isOpen){
+      [['beginner','🟢 初級'],['advanced','🟠 進階'],['equipment','🟣 器具']].forEach(([cat,label])=>{
+        const list=(courseNames&&courseNames[cat])||[];
+        if(list.length){courseOpts+=`<optgroup label="${label}">`;list.forEach(n=>{courseOpts+=`<option value="${n}">${n}</option>`;});courseOpts+=`</optgroup>`;}
+      });
+    } else {courseOpts=`<option value="${s.name}" selected>${s.name}</option>`;}
     document.getElementById('mo-body').innerHTML=
       `<div class="fg"><label>您的姓名 ＊</label><input type="text" id="bk-n" placeholder="請輸入姓名"></div>`+
       `<div class="fg"><label>${isOpen?'請選擇課程 ＊（你是第一位，請選擇想上的課）':'課程名稱'}</label><select id="bk-course" ${!isOpen?'disabled':''}>${courseOpts}</select></div>`+
